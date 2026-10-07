@@ -148,6 +148,9 @@ jobs:
     permissions:
       contents: read
       packages: read
+    defaults:
+      run:
+        working-directory: .      # this job has no checkout, so use the default directory
     env:
       # Secrets demo: a repository secret would be injected like this.
       # It is masked in logs; here we only report whether it exists.

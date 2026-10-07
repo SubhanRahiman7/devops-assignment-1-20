@@ -1,0 +1,183 @@
+name: Session 16 - CI/CD Pipeline
+
+# WORKFLOW: triggered by pushes/PRs that touch this project, or manually
+on:
+  push:
+    branches: [main]
+    paths:
+      - "session16-cicd-github-actions/**"
+      - ".github/workflows/session16-ci-cd.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "session16-cicd-github-actions/**"
+  workflow_dispatch:
+
+env:
+  APP_DIR: session16-cicd-github-actions
+  IMAGE_NAME: session16-calculator-api
+
+defaults:
+  run:
+    working-directory: session16-cicd-github-actions
+
+jobs:
+  # ---------------------------------------------------------------- CI
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest            # RUNNER: GitHub-hosted Ubuntu VM
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: session16-cicd-github-actions/requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run unit tests
+        run: pytest -v --junitxml=test-results-${{ matrix.python-version }}.xml
+      - name: Upload test report (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-py${{ matrix.python-version }}
+          path: session16-cicd-github-actions/test-results-${{ matrix.python-version }}.xml
+
+  security-check:
+    name: Security check (sensitive files)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Look for common sensitive files
+        working-directory: .
+        run: |
+          echo "Checking repository for common sensitive files..."
+          if find . -path ./.git -prune -o -type f \( -name ".env" -o -name "*.pem" -o -name "*.key" \) -print | grep -q .; then
+            echo "Potential sensitive file found."; exit 1
+          else
+            echo "No common sensitive files found."
+          fi
+
+  build:
+    name: Build application
+    needs: test                        # runs only if every test job passed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: ./build.sh
+      - name: Show build info
+        run: cat build/build-info.txt
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-build
+          path: session16-cicd-github-actions/build/
+
+  docker:
+    name: Docker build + smoke test
+    needs: [build, security-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build --build-arg APP_VERSION=${{ github.sha }} -t "$IMAGE_NAME:ci" .
+      - name: Run container and test /health
+        run: |
+          docker run -d --name api -p 8000:8000 "$IMAGE_NAME:ci"
+          curl -fs --retry 15 --retry-connrefused --retry-delay 1 http://localhost:8000/health
+          echo
+          curl -fs "http://localhost:8000/calc?op=add&a=10&b=5"
+          echo
+          docker logs api
+      - name: Pipeline summary
+        run: |
+          {
+            echo "### CI result"
+            echo "- unit tests: passed (Python 3.11 + 3.12)"
+            echo "- build artifact: uploaded"
+            echo "- docker image built and smoke tested"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ---------------------------------------------------------------- CD
+  publish:
+    name: CD - push image to GitHub Container Registry
+    needs: docker
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute lower-case image name
+        id: meta
+        working-directory: .
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+      - name: Log in to GHCR (uses the built-in GITHUB_TOKEN secret)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: session16-cicd-github-actions
+          push: true
+          build-args: APP_VERSION=${{ github.sha }}
+          tags: |
+            ${{ steps.meta.outputs.image }}:latest
+            ${{ steps.meta.outputs.image }}:${{ github.sha }}
+
+  deploy:
+    name: CD - deploy published image (staging)
+    needs: publish
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+      packages: read
+    env:
+      # Secrets demo: a repository secret would be injected like this.
+      # It is masked in logs; here we only report whether it exists.
+      DEMO_SECRET: ${{ secrets.DEMO_SECRET }}
+    steps:
+      - name: Report secret availability (value is never printed)
+        run: |
+          if [ -n "$DEMO_SECRET" ]; then
+            echo "DEMO_SECRET is configured (value hidden)"
+          else
+            echo "DEMO_SECRET is not set for this repository"
+          fi
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull and run the image that was just published
+        run: |
+          IMAGE="${{ needs.publish.outputs.image }}:${{ github.sha }}"
+          docker pull "$IMAGE"
+          docker run -d --name staging -p 8000:8000 "$IMAGE"
+          curl -fs --retry 15 --retry-connrefused --retry-delay 1 http://localhost:8000/health
+          echo
+          curl -fs "http://localhost:8000/calc?op=multiply&a=6&b=7"
+          echo
+      - name: Deployment summary
+        run: |
+          {
+            echo "### Deployed"
+            echo "Image: \`${{ needs.publish.outputs.image }}:${{ github.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

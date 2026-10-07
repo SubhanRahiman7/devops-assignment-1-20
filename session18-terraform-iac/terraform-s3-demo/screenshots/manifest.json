@@ -1,0 +1,78 @@
+[
+ {
+  "key": "terraform-workflow",
+  "heading": "Terraform workflow",
+  "file": "terraform-workflow-01.png",
+  "cmds": [
+   "ls -1"
+  ]
+ },
+ {
+  "key": "terraform-workflow",
+  "heading": "Terraform workflow",
+  "file": "terraform-workflow-02.png",
+  "cmds": [
+   "terraform init -no-color",
+   "terraform fmt -check -diff -no-color; echo \"terraform fmt exit code: $?  (0 = already formatted)\"",
+   "terraform validate -no-color"
+  ]
+ },
+ {
+  "key": "terraform-workflow",
+  "heading": "Terraform workflow",
+  "file": "terraform-workflow-03.png",
+  "cmds": [
+   "terraform plan -no-color -var-file=local-emulator.tfvars -out=s3.tfplan"
+  ]
+ },
+ {
+  "key": "terraform-workflow",
+  "heading": "Terraform workflow",
+  "file": "terraform-workflow-04.png",
+  "cmds": [
+   "terraform apply -no-color -auto-approve s3.tfplan"
+  ]
+ },
+ {
+  "key": "terraform-workflow",
+  "heading": "Terraform workflow",
+  "file": "terraform-workflow-05.png",
+  "cmds": [
+   "terraform show -no-color"
+  ]
+ },
+ {
+  "key": "terraform-workflow",
+  "heading": "Terraform workflow",
+  "file": "terraform-workflow-06.png",
+  "cmds": [
+   "terraform output",
+   "terraform output -raw bucket_name; echo; terraform output -json | head -n 14",
+   "terraform state list"
+  ]
+ },
+ {
+  "key": "verify-the-bucket-exists-aws-cli-against-the-local-emulator",
+  "heading": "Verify the bucket exists (AWS CLI against the local emulator)",
+  "file": "verify-the-bucket-exists-aws-cli-against-the-local-emulator-01.png",
+  "cmds": [
+   "export AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=ap-south-1; aws --endpoint-url htt"
+  ]
+ },
+ {
+  "key": "destroy",
+  "heading": "Destroy",
+  "file": "destroy-01.png",
+  "cmds": [
+   "terraform destroy -no-color -auto-approve -var-file=local-emulator.tfvars"
+  ]
+ },
+ {
+  "key": "destroy",
+  "heading": "Destroy",
+  "file": "destroy-02.png",
+  "cmds": [
+   "terraform state list; echo \"(empty state)\"; export AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAU"
+  ]
+ }
+]

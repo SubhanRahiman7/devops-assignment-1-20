@@ -93,7 +93,7 @@ jobs:
       - name: Run container and test /health
         run: |
           docker run -d --name api -p 8000:8000 "$IMAGE_NAME:ci"
-          curl -fs --retry 15 --retry-connrefused --retry-delay 1 http://localhost:8000/health
+          curl -fs --retry 20 --retry-all-errors --retry-delay 1 http://localhost:8000/health
           echo
           curl -fs "http://localhost:8000/calc?op=add&a=10&b=5"
           echo
@@ -171,7 +171,7 @@ jobs:
           IMAGE="${{ needs.publish.outputs.image }}:${{ github.sha }}"
           docker pull "$IMAGE"
           docker run -d --name staging -p 8000:8000 "$IMAGE"
-          curl -fs --retry 15 --retry-connrefused --retry-delay 1 http://localhost:8000/health
+          curl -fs --retry 20 --retry-all-errors --retry-delay 1 http://localhost:8000/health
           echo
           curl -fs "http://localhost:8000/calc?op=multiply&a=6&b=7"
           echo

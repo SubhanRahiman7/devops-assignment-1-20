@@ -1,0 +1,61 @@
+[
+ {
+  "key": "1-argo-cd-is-installed",
+  "heading": "1 Argo CD is installed",
+  "file": "1-argo-cd-is-installed-01.png",
+  "cmds": [
+   "kubectl get pods -n argocd",
+   "kubectl get crd | grep argoproj.io"
+  ]
+ },
+ {
+  "key": "2-create-the-application-git-kubernetes",
+  "heading": "2 Create the Application (Git -> Kubernetes)",
+  "file": "2-create-the-application-git-kubernetes-01.png",
+  "cmds": [
+   "cat argocd/application.yaml",
+   "kubectl apply -f argocd/application.yaml",
+   "kubectl get applications -n argocd"
+  ]
+ },
+ {
+  "key": "2-create-the-application-git-kubernetes",
+  "heading": "2 Create the Application (Git -> Kubernetes)",
+  "file": "2-create-the-application-git-kubernetes-02.png",
+  "cmds": [
+   "kubectl get all -n gitops-demo",
+   "kubectl get deploy gitops-web -n gitops-demo   # replicas / image from Git v1"
+  ]
+ },
+ {
+  "key": "3-change-the-desired-state-in-git-replicas-3-nginx-1-27",
+  "heading": "3 Change the desired state in Git (replicas 3, nginx 1.27)",
+  "file": "3-change-the-desired-state-in-git-replicas-3-nginx-1-27-01.png",
+  "cmds": [
+   "edit app/deployment.yaml:  replicas 2 -> 3, image nginx:1.26-alpine -> nginx:1.27-alpine",
+   "git log --oneline -3   # the change is a Git commit",
+   "kubectl get applications -n argocd   # synced automatically",
+   "kubectl get pods,deploy -n gitops-demo   # now 3 replicas on nginx 1.27"
+  ]
+ },
+ {
+  "key": "4-drift-a-manual-change-in-the-cluster-is-reverted-self-heal",
+  "heading": "4 Drift: a manual change in the cluster is reverted (self-heal)",
+  "file": "4-drift-a-manual-change-in-the-cluster-is-reverted-self-heal-01.png",
+  "cmds": [
+   "kubectl scale deploy gitops-web -n gitops-demo --replicas=6   # someone changes the cluster by hand",
+   "kubectl get deploy gitops-web -n gitops-demo   # right after the manual change",
+   "kubectl get deploy,pods,applications   # Argo CD put it back to the value in Git"
+  ]
+ },
+ {
+  "key": "5-rollback-git-revert",
+  "heading": "5 Rollback = git revert",
+  "file": "5-rollback-git-revert-01.png",
+  "cmds": [
+   "git revert --no-edit HEAD   # undo the change in Git",
+   "git log --oneline -4",
+   "kubectl get applications -n argocd; kubectl get deploy gitops-web -n gitops-demo   # back to v1"
+  ]
+ }
+]

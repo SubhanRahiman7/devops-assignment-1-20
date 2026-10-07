@@ -1,0 +1,69 @@
+services:
+  demo-app:                     # the application being monitored
+    image: nginx:1.27-alpine
+    container_name: s20-demo-app
+    ports: ["8090:80"]
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: s20-prometheus
+    ports: ["9090:9090"]
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+    depends_on: [node-exporter, cadvisor, blackbox, alertmanager]
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    container_name: s20-alertmanager
+    ports: ["9093:9093"]
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+
+  node-exporter:                # host metrics: CPU, memory, disk
+    image: prom/node-exporter:v1.9.1
+    container_name: s20-node-exporter
+    pid: host
+
+  cadvisor:                     # container metrics
+    image: gcr.io/cadvisor/cadvisor:v0.52.1
+    container_name: s20-cadvisor
+    privileged: true
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  blackbox:                     # HTTP health probes
+    image: prom/blackbox-exporter:v0.27.0
+    container_name: s20-blackbox
+    volumes: ["./blackbox.yml:/etc/blackbox_exporter/config.yml:ro"]
+
+  loki:                         # log storage
+    image: grafana/loki:3.5.1
+    container_name: s20-loki
+    command: ["-config.file=/etc/loki/loki.yml"]
+    volumes: ["./loki.yml:/etc/loki/loki.yml:ro"]
+
+  promtail:                     # log shipper (reads Docker container logs)
+    image: grafana/promtail:3.5.1
+    container_name: s20-promtail
+    command: ["-config.file=/etc/promtail/promtail.yml"]
+    volumes:
+      - ./promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on: [loki]
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    container_name: s20-grafana
+    ports: ["3030:3000"]
+    environment:               # local demo only: no login screen
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+      GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on: [prometheus, loki]

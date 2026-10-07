@@ -1,0 +1,63 @@
+[
+ {
+  "key": "1-stack-is-running",
+  "heading": "1 Stack is running",
+  "file": "1-stack-is-running-01.png",
+  "cmds": [
+   "docker compose ps --format \"table {{.Name}}\\t{{.Status}}\\t{{.Ports}}\" | sed -E \"s/, \\[::\\]:[0-9]+->[0-9]+\\/tcp",
+   "curl -s localhost:9090/api/v1/targets | python3 -c \"import sys,json; [print(f\\\"{t[\\\"labels\\\"][\\\"job\\\"]:<14} {t"
+  ]
+ },
+ {
+  "key": "2-metrics-promql",
+  "heading": "2 Metrics (PromQL)",
+  "file": "2-metrics-promql-01.png",
+  "cmds": [
+   "q \"100 - (avg(rate(node_cpu_seconds_total{mode=\\\"idle\\\"}[30s])) * 100)\"",
+   "q \"(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100\"",
+   "q \"probe_success{job=\\\"app-health\\\"}\"",
+   "q \"sum by (name) (container_memory_working_set_bytes{name=~\\\"s20-.+\\\"}) / 1024 / 1024\""
+  ]
+ },
+ {
+  "key": "3-logs-loki",
+  "heading": "3 Logs (Loki)",
+  "file": "3-logs-loki-01.png",
+  "cmds": [
+   "for i in $(seq 1 25); do curl -s -o /dev/null localhost:8090/page-$i; done; curl -s -o /dev/null localhost:809",
+   "docker logs --tail 4 s20-demo-app",
+   "curl -s -G localhost:3030/api/datasources/proxy/uid/loki/loki/api/v1/query_range --data-urlencode \"query={cont"
+  ]
+ },
+ {
+  "key": "4-alert-application-down",
+  "heading": "4 Alert: application down",
+  "file": "4-alert-application-down-01.png",
+  "cmds": [
+   "docker stop s20-demo-app   # simulate an application outage",
+   "curl -s localhost:9090/api/v1/alerts   # active alerts",
+   "probe_success{job=\"app-health\"}"
+  ]
+ },
+ {
+  "key": "5-recovery",
+  "heading": "5 Recovery",
+  "file": "5-recovery-01.png",
+  "cmds": [
+   "docker start s20-demo-app   # fix: restart the application",
+   "curl -s localhost:9090/api/v1/alerts   # alert resolved"
+  ]
+ },
+ {
+  "key": "6-alert-high-cpu",
+  "heading": "6 Alert: high CPU",
+  "file": "6-alert-high-cpu-01.png",
+  "cmds": [
+   "docker run -d --rm --name s20-stress alpine ...   # 16 busy loops = CPU load",
+   "PromQL: CPU utilisation %",
+   "curl -s localhost:9090/api/v1/alerts   # active alerts",
+   "docker stop s20-stress   # stop the load",
+   "curl -s localhost:9090/api/v1/alerts   # CPU alert resolved"
+  ]
+ }
+]

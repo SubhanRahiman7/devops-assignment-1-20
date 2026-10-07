@@ -1,0 +1,30 @@
+groups:
+  - name: session20-alerts
+    rules:
+      - alert: TargetDown
+        expr: up == 0
+        for: 10s
+        labels: { severity: critical }
+        annotations:
+          summary: "Target {{ $labels.job }} ({{ $labels.instance }}) is down"
+
+      - alert: AppUnhealthy
+        expr: probe_success{job="app-health"} == 0
+        for: 10s
+        labels: { severity: critical }
+        annotations:
+          summary: "Application {{ $labels.instance }} failed its HTTP health check"
+
+      - alert: HighCpuUsage
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[30s])) * 100) > 60
+        for: 10s
+        labels: { severity: warning }
+        annotations:
+          summary: "CPU utilisation is above 60% ({{ $value | printf \"%.0f\" }}%)"
+
+      - alert: HighMemoryUsage
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+        for: 10s
+        labels: { severity: warning }
+        annotations:
+          summary: "Memory utilisation is above 90%"

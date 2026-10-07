@@ -188,3 +188,33 @@ $ getent hosts example.com
 * Local network: container IP `172.17.0.2/16`, gateway `172.17.0.1`.
 * Connectivity verified to `8.8.8.8` (0% loss) and DNS resolution works for `google.com` / `github.com`.
 * Port 443 on github.com is open; port 81 is not.
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Networking commands
+
+![hostname; hostname -I](screenshots/networking-commands-01.png)
+
+*Commands: `hostname` · `ip addr show eth0` · `ip route` · `ip neigh`*
+
+![ping -c 3 google.com](screenshots/networking-commands-02.png)
+
+*Commands: `ping -c 3 google.com` · `traceroute -n -m 6 8.8.8.8` · `nslookup google.com`*
+
+![dig +short google.com A; dig +short MX gmail.com | head -n 2](screenshots/networking-commands-03.png)
+
+*Commands: `dig +short google.com A` · `dig github.com +noall +answer +stats | head -n 6` · `curl -sI https://www.google.com | head -n 5` · `curl -s -o /dev/null -w "HTTP %{http_code}, time %{time_total}s\n" htt`*
+
+![netstat -tulnp 2>/dev/null | head -n 5](screenshots/networking-commands-04.png)
+
+*Commands: `netstat -tulnp 2>/dev/null | head -n 5` · `nc -zv github.com 443` · `netstat -rn` · `cat /etc/hosts | head -n 4`*
+
+![getent hosts example.com](screenshots/networking-commands-05.png)
+
+*Commands: `getent hosts example.com`*
+
+<!-- screenshots:end -->

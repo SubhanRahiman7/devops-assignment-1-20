@@ -1,0 +1,91 @@
+[
+ {
+  "key": "cluster-verification",
+  "heading": "Cluster verification",
+  "file": "cluster-verification-01.png",
+  "cmds": [
+   "minikube version",
+   "kubectl version",
+   "minikube status",
+   "kubectl cluster-info",
+   "kubectl get nodes -o wide"
+  ]
+ },
+ {
+  "key": "cluster-verification",
+  "heading": "Cluster verification",
+  "file": "cluster-verification-02.png",
+  "cmds": [
+   "kubectl get pods -n kube-system -o wide",
+   "kubectl get componentstatuses 2>&1 | head -5",
+   "kubectl get ns"
+  ]
+ },
+ {
+  "key": "cluster-verification",
+  "heading": "Cluster verification",
+  "file": "cluster-verification-03.png",
+  "cmds": [
+   "kubectl api-resources | head -n 20"
+  ]
+ },
+ {
+  "key": "cluster-verification",
+  "heading": "Cluster verification",
+  "file": "cluster-verification-04.png",
+  "cmds": [
+   "minikube addons list | sed \"s/\\x1b\\[[0-9;]*m//g\" | head -n 12",
+   "kubectl config current-context; kubectl config get-contexts"
+  ]
+ },
+ {
+  "key": "cluster-verification",
+  "heading": "Cluster verification",
+  "file": "cluster-verification-05.png",
+  "cmds": [
+   "kubectl describe node minikube | sed -n \"1,12p;/Capacity/,/Allocatable/p\""
+  ]
+ },
+ {
+  "key": "kubernetes-basics-tutorial",
+  "heading": "Kubernetes Basics tutorial",
+  "file": "kubernetes-basics-tutorial-01.png",
+  "cmds": [
+   "kubectl create namespace s9",
+   "kubectl -n s9 create deployment web-basics --image=nginx:1.24-alpine --replicas=1",
+   "kubectl -n s9 rollout status deployment/web-basics --timeout=180s",
+   "kubectl -n s9 get deployments; kubectl -n s9 get pods -o wide",
+   "kubectl -n s9 expose deployment/web-basics --type=NodePort --port=80",
+   "kubectl -n s9 get services",
+   "POD=$(kubectl -n s9 get pods -o jsonpath=\"{.items[0].metadata.name}\"); kubectl -n s9 exec $POD -- wget -qO- lo"
+  ]
+ },
+ {
+  "key": "kubernetes-basics-tutorial",
+  "heading": "Kubernetes Basics tutorial",
+  "file": "kubernetes-basics-tutorial-02.png",
+  "cmds": [
+   "kubectl -n s9 scale deployment/web-basics --replicas=4; kubectl -n s9 rollout status deployment/web-basics --t",
+   "kubectl -n s9 set image deployment/web-basics nginx=nginx:1.25-alpine; kubectl -n s9 rollout status deployment"
+  ]
+ },
+ {
+  "key": "kubernetes-basics-tutorial",
+  "heading": "Kubernetes Basics tutorial",
+  "file": "kubernetes-basics-tutorial-03.png",
+  "cmds": [
+   "kubectl -n s9 get pods; kubectl -n s9 describe deployment web-basics | grep -i \"image:\"",
+   "kubectl -n s9 rollout undo deployment/web-basics; kubectl -n s9 rollout status deployment/web-basics --timeout",
+   "kubectl -n s9 describe deployment web-basics | grep -i \"image:\""
+  ]
+ },
+ {
+  "key": "kubernetes-basics-tutorial",
+  "heading": "Kubernetes Basics tutorial",
+  "file": "kubernetes-basics-tutorial-04.png",
+  "cmds": [
+   "kubectl -n s9 logs deploy/web-basics --tail=3",
+   "kubectl -n s9 get all"
+  ]
+ }
+]

@@ -251,3 +251,43 @@ Need node files (logs, agents)?          → hostPath (carefully)
 Need data to survive Pod/node restarts?  → PVC (+ PV or StorageClass)
 Cloud cluster / many apps?               → StorageClass with dynamic provisioning (+ StatefulSet volumeClaimTemplates for databases)
 ```
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Emptydir
+
+![kubectl -n s13 apply -f emptydir/pod.yaml; kubectl -n s13 wait --for=condition=Ready pod/emptydir-demo --timeo](screenshots/emptydir-01.png)
+
+*Commands: `kubectl -n s13 apply -f emptydir/pod.yaml` · `kubectl -n s13 exec emptydir-demo -- sh -c "echo hello-emptydir > /dat` · `echo "--- kill the container process (container restarts, Pod stays):"` · `echo "--- delete and recreate the Pod:"`*
+
+### Hostpath
+
+![kubectl -n s13 apply -f hostpath/pod.yaml; kubectl -n s13 wait --for=condition=Ready pod/hostpath-demo --timeo](screenshots/hostpath-01.png)
+
+*Commands: `kubectl -n s13 apply -f hostpath/pod.yaml` · `echo "--- the file is on the NODE at /tmp/hostpath-data:"` · `kubectl -n s13 delete pod hostpath-demo --wait=true`*
+
+### Pv-Pvc
+
+![kubectl apply -f persistent-volume/pv.yaml; kubectl get pv hw-student-pv](screenshots/pv-pvc-01.png)
+
+*Commands: `kubectl apply -f persistent-volume/pv.yaml` · `kubectl -n s13 apply -f persistent-volume/pvc.yaml` · `kubectl -n s13 apply -f persistent-volume/pod.yaml` · `echo "--- delete the Pod, create it again:"`*
+
+![kubectl -n s13 describe pvc hw-student-pvc | sed -n "1,14p"](screenshots/pv-pvc-02.png)
+
+*Commands: `kubectl -n s13 describe pvc hw-student-pvc | sed -n "1,14p"` · `kubectl -n s13 delete pod storage-demo --wait=true`*
+
+### Dynamic
+
+![kubectl get storageclass; kubectl get storageclass standard -o jsonpath="{.provisioner} {.reclaimPolicy} {.vol](screenshots/dynamic-01.png)
+
+*Commands: `kubectl get storageclass` · `kubectl -n s13 apply -f dynamic-storageclass/pvc.yaml` · `kubectl -n s13 apply -f dynamic-storageclass/pod.yaml` · `kubectl -n s13 get pvc dynamic-pvc`*
+
+![PV=$(kubectl -n s13 get pvc dynamic-pvc -o jsonpath="{.spec.volumeName}"); kubectl -n s13 delete pod dynamic-p](screenshots/dynamic-02.png)
+
+*Commands: `PV=$(kubectl -n s13 get pvc dynamic-pvc -o jsonpath="{.spec.volumeName`*
+
+<!-- screenshots:end -->

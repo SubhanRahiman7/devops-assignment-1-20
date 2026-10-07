@@ -280,3 +280,59 @@ replicaset.apps/web-basics-6c78dcd7fc   4         4         4       49s
 replicaset.apps/web-basics-6dc896b544   0         0         0       11s
 ```
 **Observations:** Deployment → ReplicaSet → Pods; Service `NodePort 80:32299`; scale 1→4; image update created a **new ReplicaSet** (`6dc896b544`) while the old one scaled to 0 (rolling update); `rollout undo` brought the old ReplicaSet back (`REVISION 3`).
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Cluster verification
+
+![minikube version](screenshots/cluster-verification-01.png)
+
+*Commands: `minikube version` · `kubectl version` · `minikube status` · `kubectl cluster-info`*
+
+![kubectl get pods -n kube-system -o wide](screenshots/cluster-verification-02.png)
+
+*Commands: `kubectl get pods -n kube-system -o wide` · `kubectl get componentstatuses 2>&1 | head -5` · `kubectl get ns`*
+
+![kubectl api-resources | head -n 20](screenshots/cluster-verification-03.png)
+
+*Commands: `kubectl api-resources | head -n 20`*
+
+![minikube addons list | sed "s/\x1b\[[0-9;]*m//g" | head -n 12](screenshots/cluster-verification-04.png)
+
+*Commands: `minikube addons list | sed "s/\x1b\[[0-9` · `kubectl config current-context`*
+
+![kubectl describe node minikube | sed -n "1,12p;/Capacity/,/Allocatable/p"](screenshots/cluster-verification-05.png)
+
+*Commands: `kubectl describe node minikube | sed -n "1,12p`*
+
+### Kubernetes Basics tutorial
+
+![kubectl create namespace s9](screenshots/kubernetes-basics-tutorial-01.png)
+
+*Commands: `kubectl create namespace s9` · `kubectl -n s9 create deployment web-basics --image=nginx:1.24-alpine -` · `kubectl -n s9 rollout status deployment/web-basics --timeout=180s` · `kubectl -n s9 get deployments`*
+
+![kubectl -n s9 scale deployment/web-basics --replicas=4; kubectl -n s9 rollout status deployment/web-basics --t](screenshots/kubernetes-basics-tutorial-02.png)
+
+*Commands: `kubectl -n s9 scale deployment/web-basics --replicas=4` · `kubectl -n s9 set image deployment/web-basics nginx=nginx:1.25-alpine`*
+
+![kubectl -n s9 get pods; kubectl -n s9 describe deployment web-basics | grep -i "image:"](screenshots/kubernetes-basics-tutorial-03.png)
+
+*Commands: `kubectl -n s9 get pods` · `kubectl -n s9 rollout undo deployment/web-basics` · `kubectl -n s9 describe deployment web-basics | grep -i "image:"`*
+
+![kubectl -n s9 logs deploy/web-basics --tail=3](screenshots/kubernetes-basics-tutorial-04.png)
+
+*Commands: `kubectl -n s9 logs deploy/web-basics --tail=3` · `kubectl -n s9 get all`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Deployment exposed with a Service – reached through kubectl port-forward (http://localhost:8101)**
+
+![Deployment exposed with a Service – reached through kubectl port-forward (http://localhost:8101)](screenshots/web-nginx-service.png)
+
+<!-- web:end -->

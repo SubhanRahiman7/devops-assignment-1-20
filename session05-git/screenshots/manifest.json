@@ -1,0 +1,58 @@
+[
+ {
+  "key": "task-1-commit-a-m-vs-commit-m",
+  "heading": "Task 1 \u2013 commit -a -m vs commit -m",
+  "file": "task-1-commit-a-m-vs-commit-m-01.png",
+  "cmds": [
+   "echo \"v1\" > tracked.txt; git add tracked.txt; git commit -m \"Add tracked.txt\"",
+   "echo \"v2\" >> tracked.txt; echo \"brand new\" > untracked.txt; git status -s",
+   "git commit -m \"try plain -m without staging\"",
+   "git commit -a -m \"update tracked.txt using -a -m\"",
+   "git status -s; git log --oneline --stat -n 1",
+   "git add untracked.txt; git commit -m \"Add untracked.txt with add + commit -m\""
+  ]
+ },
+ {
+  "key": "task-1-commit-a-m-vs-commit-m",
+  "heading": "Task 1 \u2013 commit -a -m vs commit -m",
+  "file": "task-1-commit-a-m-vs-commit-m-02.png",
+  "cmds": [
+   "git log --oneline"
+  ]
+ },
+ {
+  "key": "task-2-cherry-pick",
+  "heading": "Task 2 \u2013 cherry-pick",
+  "file": "task-2-cherry-pick-01.png",
+  "cmds": [
+   "echo \"A\" > file.txt; git add file.txt; git commit -m \"main: commit 1 - add file.txt\"",
+   "echo \"B\" >> file.txt; git commit -am \"main: commit 2 - append B\"",
+   "echo \"C\" >> file.txt; git commit -am \"main: commit 3 - append C\"",
+   "git log --oneline",
+   "git checkout -b feature",
+   "echo \"feature one\" > f1.txt; git add f1.txt; git commit -m \"feature: commit 1 - add f1.txt\"",
+   "echo \"feature two\" > f2.txt; git add f2.txt; git commit -m \"feature: commit 2 - add f2.txt\"",
+   "echo \"feature three\" > f3.txt; git add f3.txt; git commit -m \"feature: commit 3 - add f3.txt\""
+  ]
+ },
+ {
+  "key": "task-2-cherry-pick",
+  "heading": "Task 2 \u2013 cherry-pick",
+  "file": "task-2-cherry-pick-02.png",
+  "cmds": [
+   "git log --oneline --graph --all",
+   "git checkout main; ls",
+   "git cherry-pick f39f2c5"
+  ]
+ },
+ {
+  "key": "task-2-cherry-pick",
+  "heading": "Task 2 \u2013 cherry-pick",
+  "file": "task-2-cherry-pick-03.png",
+  "cmds": [
+   "git log --oneline --graph --all; echo; ls; cat f2.txt",
+   "git show --stat HEAD",
+   "ls f1.txt f3.txt 2>&1"
+  ]
+ }
+]

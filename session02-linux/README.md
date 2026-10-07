@@ -350,3 +350,51 @@ $ history | tail -n 2; which ls; type cd; alias ll="ls -l"; man --version 2>&1 |
 cd is a shell builtin
 This system has been minimized by removing packages and content that are
 ```
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Task 1 – Soft link & hard link
+
+![echo "Hello DevOps" > original.txt; ls -li](screenshots/task-1-soft-link-hard-link-01.png)
+
+*Commands: `echo "Hello DevOps" > original.txt` · `ln original.txt hardlink.txt` · `ln -s original.txt softlink.txt` · `ls -li`*
+
+### Task 2 – adduser vs useradd
+
+![sudo useradd testuser1; grep testuser1 /etc/passwd; ls -ld /home/testuser1; getent shadow testuser1 | cut -d: ](screenshots/task-2-adduser-vs-useradd-01.png)
+
+*Commands: `sudo useradd testuser1` · `sudo adduser --disabled-password --gecos "Test User Two" testuser2` · `grep testuser2 /etc/passwd` · `sudo userdel -r testuser1`*
+
+### Task 3 – journalctl
+
+![systemctl start nginx; systemctl is-active nginx](screenshots/task-3-journalctl-01.png)
+
+*Commands: `systemctl start nginx` · `journalctl -u nginx --no-pager` · `journalctl -u nginx -n 3 --no-pager` · `systemctl restart nginx`*
+
+![journalctl -b --no-pager | head -n 5](screenshots/task-3-journalctl-02.png)
+
+*Commands: `journalctl -b --no-pager | head -n 5` · `journalctl -k --no-pager | head -n 3` · `journalctl --disk-usage` · `journalctl -u nginx -o json-pretty -n 1 --no-pager | head -n 12`*
+
+### Task 4 – Linux command cheat sheet
+
+![pwd; whoami; hostname; uname -a](screenshots/task-4-linux-command-cheat-sheet-01.png)
+
+*Commands: `pwd` · `mkdir -p project/src project/docs` · `ls -la project` · `echo "line one" > a.txt`*
+
+![grep -i error a.txt; grep -c line a.txt](screenshots/task-4-linux-command-cheat-sheet-02.png)
+
+*Commands: `grep -i error a.txt` · `find /tmp/cheat -name "*.py"` · `chmod 750 a.txt` · `ps aux | head -n 4`*
+
+![ip -br addr; ss -tlnp | head -n 5](screenshots/task-4-linux-command-cheat-sheet-03.png)
+
+*Commands: `ip -br addr` · `curl -sI http://localhost | head -n 3`*
+
+![cat /etc/os-release | head -n 3; uptime](screenshots/task-4-linux-command-cheat-sheet-04.png)
+
+*Commands: `cat /etc/os-release | head -n 3` · `ls /etc | head -n 5 | sort -r` · `env | grep -E "^(HOME|USER|PATH)="` · `tar -czf backup.tar.gz project`*
+
+<!-- screenshots:end -->

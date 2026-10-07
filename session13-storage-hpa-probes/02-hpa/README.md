@@ -294,3 +294,45 @@ Events:
 | load stopped | 0 % / 50 % | 2 → (after 5 min) **1** |
 
 Useful commands: `kubectl get hpa`, `kubectl get pods`, `kubectl top pods`, `kubectl describe hpa <name>`, `kubectl autoscale deployment <name> --cpu-percent=50 --min=1 --max=5`.
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Deploy
+
+![kubectl -n s13-hpa apply -f deployment.yaml -f service.yaml; kubectl -n s13-hpa rollout status deploy/hpa-demo](screenshots/deploy-01.png)
+
+*Commands: `kubectl -n s13-hpa apply -f deployment.yaml -f service.yaml` · `kubectl -n s13-hpa apply -f hpa.yaml` · `kubectl -n s13-hpa get pods`*
+
+### Load
+
+![kubectl -n s13-hpa apply -f load-generator.yaml; kubectl -n s13-hpa wait --for=condition=Ready pod/load-genera](screenshots/load-01.png)
+
+*Commands: `kubectl -n s13-hpa apply -f load-generator.yaml`*
+
+![watch: kubectl get hpa / kubectl get pods / kubectl top pods   (every 15s while under load)](screenshots/load-02.png)
+
+*Commands: `watch: kubectl get hpa / kubectl get pods / kubectl top pods   (every `*
+
+![kubectl -n s13-hpa get hpa; kubectl -n s13-hpa get pods -l app=hpa-demo](screenshots/load-03.png)
+
+*Commands: `kubectl -n s13-hpa get hpa` · `kubectl -n s13-hpa top pods`*
+
+![kubectl -n s13-hpa describe hpa hpa-demo](screenshots/load-04.png)
+
+*Commands: `kubectl -n s13-hpa describe hpa hpa-demo`*
+
+### Stop Load
+
+![kubectl -n s13-hpa delete pod load-generator --wait=true](screenshots/stop-load-01.png)
+
+*Commands: `kubectl -n s13-hpa delete pod load-generator --wait=true` · `watch: kubectl get hpa (every 30s after load stopped`*
+
+![kubectl -n s13-hpa get hpa; kubectl -n s13-hpa get pods -l app=hpa-demo; kubectl -n s13-hpa describe hpa hpa-d](screenshots/stop-load-02.png)
+
+*Commands: `kubectl -n s13-hpa get hpa`*
+
+<!-- screenshots:end -->

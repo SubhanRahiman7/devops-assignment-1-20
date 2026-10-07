@@ -600,3 +600,176 @@ lifecycle-succeeded         0/1     Completed          0              4m33s
 | CrashLoopBackOff | container keeps crashing; kubelet delays restarts exponentially (10 s → 5 min) |
 | ErrImagePull / ImagePullBackOff | image cannot be pulled |
 | Init:N/M | init containers still running |
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Rolling update
+
+![kubectl -n s10 apply -f 01-rolling-update/deployment-v1.yaml -f 01-rolling-update/service.yaml](screenshots/rolling-update-01.png)
+
+*Commands: `kubectl -n s10 apply -f 01-rolling-update/deployment-v1.yaml -f 01-rol` · `kubectl -n s10 rollout status deployment/app-rolling --timeout=180s` · `kubectl -n s10 exec tester -- curl -s http://app-rolling-service | gre` · `kubectl -n s10 apply -f 01-rolling-update/deployment-v2.yaml`*
+
+![kubectl get pods -l app=app-rolling -w   (captured during the update)](screenshots/rolling-update-02.png)
+
+*Commands: `kubectl get pods -l app=app-rolling -w   (captured during the update)`*
+
+![kubectl -n s10 get pods -l app=app-rolling --show-labels; kubectl -n s10 get rs -l app=app-rolling](screenshots/rolling-update-03.png)
+
+*Commands: `kubectl -n s10 get pods -l app=app-rolling --show-labels` · `kubectl -n s10 exec tester -- curl -s http://app-rolling-service | gre` · `kubectl -n s10 rollout history deployment/app-rolling` · `kubectl -n s10 rollout undo deployment/app-rolling`*
+
+### Blue-green
+
+![kubectl -n s10 apply -f 02-blue-green/deployment-blue.yaml -f 02-blue-green/deployment-green.yaml -f 02-blue-g](screenshots/blue-green-01.png)
+
+*Commands: `kubectl -n s10 apply -f 02-blue-green/deployment-blue.yaml -f 02-blue-` · `kubectl -n s10 rollout status deployment/app-blue --timeout=180s` · `kubectl -n s10 get svc myapp-service -o jsonpath="{.spec.selector}"` · `echo "--- 6 requests while Service -> BLUE:"`*
+
+![grep -A3 "selector:" 02-blue-green/service-green.yaml; kubectl -n s10 apply -f 02-blue-green/service-green.yam](screenshots/blue-green-02.png)
+
+*Commands: `grep -A3 "selector:" 02-blue-green/service-green.yaml` · `kubectl -n s10 get svc myapp-service -o jsonpath="{.spec.selector}"` · `echo "--- instant rollback to BLUE:"`*
+
+### Canary
+
+![kubectl -n s10 apply -f 03-canary/deployment-stable.yaml -f 03-canary/deployment-canary.yaml -f 03-canary/serv](screenshots/canary-01.png)
+
+*Commands: `kubectl -n s10 apply -f 03-canary/deployment-stable.yaml -f 03-canary/` · `kubectl -n s10 rollout status deployment/app-stable --timeout=180s` · `kubectl -n s10 get endpoints myapp-canary-service` · `echo "--- 50 requests through the Service:"`*
+
+![kubectl -n s10 scale deployment app-canary --replicas=3; kubectl -n s10 scale deployment app-stable --replicas](screenshots/canary-02.png)
+
+*Commands: `kubectl -n s10 scale deployment app-canary --replicas=3` · `echo "--- 50 requests after increasing canary to 3/10:"`*
+
+### Recreate
+
+![kubectl -n s10 apply -f 04-recreate/deployment-v1.yaml -f 04-recreate/service.yaml; kubectl -n s10 rollout sta](screenshots/recreate-01.png)
+
+*Commands: `kubectl -n s10 apply -f 04-recreate/deployment-v1.yaml -f 04-recreate/` · `kubectl -n s10 get deployment app-recreate -o jsonpath="{.spec.strateg` · `kubectl -n s10 apply -f 04-recreate/deployment-v2.yaml`*
+
+![kubectl get pods -l app=app-recreate -w   (captured during the update)](screenshots/recreate-02.png)
+
+*Commands: `kubectl get pods -l app=app-recreate -w   (captured during the update)`*
+
+![kubectl -n s10 get pods -l app=app-recreate --show-labels | sed "s/pod-template-hash=[a-z0-9]*,//"; kubectl -n](screenshots/recreate-03.png)
+
+*Commands: `kubectl -n s10 get pods -l app=app-recreate --show-labels | sed "s/pod`*
+
+### Pod lifecycle – 01 Running
+
+![kubectl apply -f 01-running.yaml](screenshots/pod-lifecycle-01-running-01.png)
+
+*Commands: `kubectl apply -f 01-running.yaml` · `kubectl get pod lifecycle-running   (after ready)` · `kubectl describe pod lifecycle-running   (key fields)`*
+
+### Pod lifecycle – 02 Pending
+
+![kubectl apply -f 02-pending.yaml](screenshots/pod-lifecycle-02-pending-01.png)
+
+*Commands: `kubectl apply -f 02-pending.yaml` · `kubectl get pod lifecycle-pending   (after 6s)` · `kubectl describe pod lifecycle-pending   (key fields)`*
+
+### Pod lifecycle – 03 Succeeded
+
+![kubectl apply -f 03-succeeded.yaml](screenshots/pod-lifecycle-03-succeeded-01.png)
+
+*Commands: `kubectl apply -f 03-succeeded.yaml` · `kubectl get pod lifecycle-succeeded   (after 3s)` · `kubectl get pod lifecycle-succeeded   (after 15s)` · `kubectl logs lifecycle-succeeded`*
+
+### Pod lifecycle – 04 Failed
+
+![kubectl apply -f 04-failed.yaml](screenshots/pod-lifecycle-04-failed-01.png)
+
+*Commands: `kubectl apply -f 04-failed.yaml` · `kubectl get pod lifecycle-failed   (after 15s)` · `kubectl logs lifecycle-failed`*
+
+### Pod lifecycle – 05 CrashLoopBackOff
+
+![kubectl apply -f 05-crashloopbackoff.yaml](screenshots/pod-lifecycle-05-crashloopbackoff-01.png)
+
+*Commands: `kubectl apply -f 05-crashloopbackoff.yaml` · `kubectl get pod lifecycle-crashloop   (after 50s)` · `kubectl logs lifecycle-crashloop`*
+
+### Pod lifecycle – 06 ImagePullBackOff
+
+![kubectl apply -f 06-imagepullbackoff.yaml](screenshots/pod-lifecycle-06-imagepullbackoff-01.png)
+
+*Commands: `kubectl apply -f 06-imagepullbackoff.yaml` · `kubectl get pod lifecycle-image-error   (after 20s)`*
+
+### Pod lifecycle – 07 Readiness
+
+![kubectl apply -f 07-readiness.yaml](screenshots/pod-lifecycle-07-readiness-01.png)
+
+*Commands: `kubectl apply -f 07-readiness.yaml` · `kubectl get pod lifecycle-readiness   (after 2s)` · `kubectl get pod lifecycle-readiness   (after 14s)`*
+
+### Pod lifecycle – 08 Liveness
+
+![kubectl apply -f 08-liveness.yaml](screenshots/pod-lifecycle-08-liveness-01.png)
+
+*Commands: `kubectl apply -f 08-liveness.yaml` · `kubectl get pod lifecycle-liveness   (after 5s)` · `kubectl get pod lifecycle-liveness   (after 60s)`*
+
+### Pod lifecycle – 09 Startup
+
+![kubectl apply -f 09-startup.yaml](screenshots/pod-lifecycle-09-startup-01.png)
+
+*Commands: `kubectl apply -f 09-startup.yaml` · `kubectl get pod lifecycle-startup   (after 8s)` · `kubectl get pod lifecycle-startup   (after 48s)`*
+
+### Pod lifecycle – 10 Init Container
+
+![kubectl apply -f 10-init-container.yaml](screenshots/pod-lifecycle-10-init-container-01.png)
+
+*Commands: `kubectl apply -f 10-init-container.yaml` · `kubectl get pod lifecycle-init   (after 4s)` · `kubectl get pod lifecycle-init   (after 18s)`*
+
+### Pod lifecycle – 11 Multi-Container
+
+![kubectl apply -f 11-multi-container.yaml](screenshots/pod-lifecycle-11-multi-container-01.png)
+
+*Commands: `kubectl apply -f 11-multi-container.yaml` · `kubectl get pod lifecycle-multi-container   (after ready)` · `kubectl logs lifecycle-multi-container -c <sidecar>`*
+
+### Pod lifecycle – 12 Termination
+
+![kubectl apply -f 12-termination.yaml](screenshots/pod-lifecycle-12-termination-01.png)
+
+*Commands: `kubectl apply -f 12-termination.yaml` · `kubectl get pod lifecycle-termination   (after ready)` · `kubectl delete pod lifecycle-termination --wait=false`*
+
+### Pod lifecycle – 99 Summary
+
+![kubectl get pods](screenshots/pod-lifecycle-99-summary-01.png)
+
+*Commands: `kubectl get pods`*
+
+### Pod lifecycle – CrashLoopBackOff and liveness restart (polled)
+
+![kubectl apply -f 05-crashloopbackoff.yaml](screenshots/pod-lifecycle-crashloopbackoff-and-liveness-restart-polled-01.png)
+
+*Commands: `kubectl apply -f 05-crashloopbackoff.yaml` · `kubectl get pod lifecycle-crashloop   (CrashLoopBackOff reached)` · `kubectl describe pod lifecycle-crashloop   (key fields)` · `kubectl logs lifecycle-crashloop --previous`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Rolling update – before: VERSION v1**
+
+![Rolling update – before: VERSION v1](screenshots/web-rolling-v1.png)
+
+**Rolling update – after: VERSION v2**
+
+![Rolling update – after: VERSION v2](screenshots/web-rolling-v2.png)
+
+**Blue-green – Service selector slot: blue → BLUE environment**
+
+![Blue-green – Service selector slot: blue → BLUE environment](screenshots/web-blue.png)
+
+**Blue-green – after switching the selector to slot: green → GREEN environment**
+
+![Blue-green – after switching the selector to slot: green → GREEN environment](screenshots/web-green.png)
+
+**Canary – a stable (v1) Pod**
+
+![Canary – a stable (v1) Pod](screenshots/web-canary-stable.png)
+
+**Canary – the canary (v2) Pod**
+
+![Canary – the canary (v2) Pod](screenshots/web-canary-canary.png)
+
+**Recreate – new version served after old Pods were terminated**
+
+![Recreate – new version served after old Pods were terminated](screenshots/web-recreate-v2.png)
+
+<!-- web:end -->
+

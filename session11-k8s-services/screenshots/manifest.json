@@ -1,0 +1,137 @@
+[
+ {
+  "key": "service-clusterip",
+  "heading": "Service \u2013 Clusterip",
+  "file": "service-clusterip-01.png",
+  "cmds": [
+   "kubectl -n s11 apply -f 01-clusterip/",
+   "kubectl -n s11 rollout status deploy/web-app-clusterip --timeout=120s; kubectl -n s11 wait --for=condition=Rea",
+   "kubectl -n s11 get svc web-service-clusterip -o wide; kubectl -n s11 get endpoints web-service-clusterip",
+   "kubectl -n s11 exec curl-client -- curl -s -o /dev/null -w \"HTTP %{http_code} via ClusterIP service name\\n\" ht",
+   "kubectl -n s11 exec curl-client -- curl -s http://web-service-clusterip:8080 | grep -o \"<title>.*</title>\"",
+   "echo \"--- from outside the cluster (macOS host) a ClusterIP is NOT reachable:\"; curl -s -m 3 http://$(kubectl "
+  ]
+ },
+ {
+  "key": "service-nodeport",
+  "heading": "Service \u2013 Nodeport",
+  "file": "service-nodeport-01.png",
+  "cmds": [
+   "kubectl -n s11 apply -f 02-nodeport/",
+   "kubectl -n s11 rollout status deploy/web-app-nodeport --timeout=120s; sleep 6; kubectl -n s11 get svc web-serv",
+   "NP=$(kubectl -n s11 get svc web-service-nodeport -o jsonpath=\"{.spec.ports[0].nodePort}\"); echo \"nodePort=$NP\"",
+   "echo \"--- reach the NodePort from the Mac through a minikube tunnel:\"; (minikube service web-service-nodeport "
+  ]
+ },
+ {
+  "key": "service-loadbalancer",
+  "heading": "Service \u2013 Loadbalancer",
+  "file": "service-loadbalancer-01.png",
+  "cmds": [
+   "kubectl -n s11 apply -f 03-loadbalancer/",
+   "kubectl -n s11 rollout status deploy/web-app-loadbalancer --timeout=120s; kubectl -n s11 get svc web-service-l",
+   "kubectl -n s11 describe svc web-service-loadbalancer | grep -E \"^Name|^Type|^IP:|LoadBalancer Ingress|^Port|No"
+  ]
+ },
+ {
+  "key": "service-externalname",
+  "heading": "Service \u2013 Externalname",
+  "file": "service-externalname-01.png",
+  "cmds": [
+   "kubectl -n s11 apply -f 04-externalname/",
+   "kubectl -n s11 wait --for=condition=Ready pod/dns-test-client --timeout=90s; sleep 6; kubectl -n s11 get svc e",
+   "kubectl -n s11 exec dns-test-client -- nslookup external-database-service.s11.svc.cluster.local 2>&1 | head -n",
+   "kubectl -n s11 exec dns-test-client -- curl -s -m 10 -o /dev/null -w \"curl http://external-database-service ->"
+  ]
+ },
+ {
+  "key": "service-headless",
+  "heading": "Service \u2013 Headless",
+  "file": "service-headless-01.png",
+  "cmds": [
+   "kubectl -n s11 apply -f 05-headless/",
+   "kubectl -n s11 rollout status statefulset/web-stateful --timeout=180s; kubectl -n s11 wait --for=condition=Rea",
+   "kubectl -n s11 exec headless-dns-client -- nslookup web-service-headless.s11.svc.cluster.local 2>&1 | tail -n ",
+   "kubectl -n s11 exec headless-dns-client -- nslookup web-stateful-0.web-service-headless.s11.svc.cluster.local "
+  ]
+ },
+ {
+  "key": "service-headless",
+  "heading": "Service \u2013 Headless",
+  "file": "service-headless-02.png",
+  "cmds": [
+   "kubectl -n s11 exec headless-dns-client -- curl -s -o /dev/null -w \"HTTP %{http_code} from web-stateful-1 (sta",
+   "kubectl -n s11 get endpoints web-service-headless",
+   "kubectl -n s11 get svc -o wide"
+  ]
+ },
+ {
+  "key": "fqdn-dns-names",
+  "heading": "FQDN \u2013 DNS names",
+  "file": "fqdn-dns-names-01.png",
+  "cmds": [
+   "kubectl -n s11 exec curl-client -- cat /etc/resolv.conf",
+   "kubectl -n s11 exec curl-client -- getent hosts web-service-clusterip",
+   "kubectl -n s11 exec curl-client -- getent hosts web-service-clusterip.s11",
+   "kubectl -n s11 exec curl-client -- getent hosts web-service-clusterip.s11.svc.cluster.local",
+   "kubectl -n s11 exec curl-client -- nslookup web-service-clusterip.s11.svc.cluster.local",
+   "echo \"--- different namespace: short name fails, namespace-qualified works\"; kubectl -n s11 exec curl-client -",
+   "kubectl -n s11 exec curl-client -- curl -s -o /dev/null -w \"HTTP %{http_code} from other-app.s11-other.svc.clu"
+  ]
+ },
+ {
+  "key": "fqdn-dns-names",
+  "heading": "FQDN \u2013 DNS names",
+  "file": "fqdn-dns-names-02.png",
+  "cmds": [
+   "kubectl -n s11 get pods -l app=web-clusterip -o wide | head -n 2; POD_IP=$(kubectl -n s11 get pod -l app=web-c",
+   "kubectl -n s11 exec curl-client -- nslookup -type=SRV _http._tcp.web-service-clusterip.s11.svc.cluster.local",
+   "kubectl -n s11 exec curl-client -- nslookup -type=PTR $(kubectl -n s11 get svc web-service-clusterip -o jsonpa"
+  ]
+ },
+ {
+  "key": "coredns",
+  "heading": "CoreDNS",
+  "file": "coredns-01.png",
+  "cmds": [
+   "kubectl -n kube-system get pods -l k8s-app=kube-dns -o wide",
+   "kubectl -n kube-system get deploy coredns; kubectl -n kube-system get svc kube-dns"
+  ]
+ },
+ {
+  "key": "coredns",
+  "heading": "CoreDNS",
+  "file": "coredns-02.png",
+  "cmds": [
+   "kubectl -n kube-system get cm coredns -o jsonpath=\"{.data.Corefile}\"; echo",
+   "kubectl -n kube-system get endpoints kube-dns 2>/dev/null",
+   "kubectl -n s11 exec curl-client -- cat /etc/resolv.conf | grep nameserver"
+  ]
+ },
+ {
+  "key": "coredns",
+  "heading": "CoreDNS",
+  "file": "coredns-03.png",
+  "cmds": [
+   "kubectl -n kube-system logs -l k8s-app=kube-dns --tail=6"
+  ]
+ },
+ {
+  "key": "coredns-troubleshooting",
+  "heading": "CoreDNS troubleshooting",
+  "file": "coredns-troubleshooting-01.png",
+  "cmds": [
+   "echo \"--- 1 NXDOMAIN for a non-existing service:\"; kubectl -n s11 exec curl-client -- nslookup does-not-exist.",
+   "echo \"--- 2 service with no endpoints (selector mismatch) still resolves but connection fails:\"; kubectl -n s1",
+   "echo \"--- 3 scale CoreDNS to 0 -> DNS outage:\"; kubectl -n kube-system scale deploy coredns --replicas=0; slee"
+  ]
+ },
+ {
+  "key": "coredns-troubleshooting",
+  "heading": "CoreDNS troubleshooting",
+  "file": "coredns-troubleshooting-02.png",
+  "cmds": [
+   "sleep 5; kubectl -n s11 exec curl-client -- nslookup web-service-clusterip.s11.svc.cluster.local | tail -n 3"
+  ]
+ }
+]

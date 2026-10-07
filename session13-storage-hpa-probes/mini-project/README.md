@@ -288,3 +288,63 @@ web-app-d45775485-pqkq4   1/1     Running   0          4m21s
 
 ## Cleanup
 `kubectl delete ns production-webapp` (removes Pods, Service, HPA and the PVC/PV).
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Deploy
+
+![kubectl apply -f namespace.yaml](screenshots/deploy-01.png)
+
+*Commands: `kubectl apply -f namespace.yaml` · `kubectl apply -f pvc.yaml` · `kubectl apply -f deployment.yaml -f service.yaml` · `kubectl apply -f hpa.yaml`*
+
+![kubectl -n production-webapp describe deploy web-app | grep -E "Replicas|StrategyType|Liveness|Readiness|Start](screenshots/deploy-02.png)
+
+*Commands: `kubectl -n production-webapp describe deploy web-app | grep -E "Replic`*
+
+### Persistence
+
+![POD=$(kubectl -n production-webapp get pods -l app=web-app -o jsonpath="{.items[0].metadata.name}"); echo "pod](screenshots/persistence-01.png)
+
+*Commands: `POD=$(kubectl -n production-webapp get pods -l app=web-app -o jsonpath` · `POD=$(kubectl -n production-webapp get pods -l app=web-app -o jsonpath`*
+
+### Service
+
+![kubectl -n production-webapp get endpoints web-service; kubectl -n production-webapp run svc-check --image=cur](screenshots/service-01.png)
+
+*Commands: `kubectl -n production-webapp get endpoints web-service`*
+
+### Hpa
+
+![for i in 1 2 3 4; do kubectl -n production-webapp run load-generator-$i --image=busybox:1.36 --restart=Never -](screenshots/hpa-01.png)
+
+*Commands: `for i in 1 2 3 4`*
+
+![kubectl get hpa -w   (sampled every 15s)](screenshots/hpa-02.png)
+
+*Commands: `kubectl get hpa -w   (sampled every 15s)`*
+
+![kubectl -n production-webapp get hpa; kubectl -n production-webapp get pods -l app=web-app; kubectl -n product](screenshots/hpa-03.png)
+
+*Commands: `kubectl -n production-webapp get hpa`*
+
+![kubectl -n production-webapp describe hpa web-app-hpa | sed -n "/Metrics:/,\$p"](screenshots/hpa-04.png)
+
+*Commands: `kubectl -n production-webapp describe hpa web-app-hpa | sed -n "/Metri`*
+
+![kubectl -n production-webapp delete pod -l run --wait=true; sleep 45; kubectl -n production-webapp get hpa; ku](screenshots/hpa-05.png)
+
+*Commands: `kubectl -n production-webapp delete pod -l run --wait=true`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Mini project – application answered through the Service (kubectl port-forward → http://localhost:8107)**
+
+![Mini project – application answered through the Service (kubectl port-forward → http://localhost:8107)](screenshots/web-miniproject.png)
+
+<!-- web:end -->

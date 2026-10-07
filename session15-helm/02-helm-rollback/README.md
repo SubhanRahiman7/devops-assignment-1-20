@@ -125,3 +125,33 @@ RESOURCES:
 release "rel" uninstalled
 ```
 **Verified after every step** with `helm history`, `kubectl get deploy -o jsonpath` (image + replicas) and `kubectl get pods`: after the rollback the Deployment runs `nginx:1.25` with 2 replicas again, and the history shows a *new* revision 4 whose description is `Rollback to 2`.
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Rollback workflow
+
+![cat app-chart/Chart.yaml app-chart/values.yaml; helm lint app-chart](screenshots/rollback-workflow-01.png)
+
+*Commands: `cat app-chart/Chart.yaml app-chart/values.yaml` · `helm install rel app-chart -n s15`*
+
+![echo "--- UPGRADE 1: nginx 1.25, 2 replicas"; helm upgrade rel app-chart -n s15 --set image.tag=1.25 --set rep](screenshots/rollback-workflow-02.png)
+
+*Commands: `echo "--- UPGRADE 1: nginx 1.25, 2 replicas"`*
+
+![echo "--- UPGRADE 2: nginx 1.27, 3 replicas"; helm upgrade rel app-chart -n s15 --set image.tag=1.27 --set rep](screenshots/rollback-workflow-03.png)
+
+*Commands: `echo "--- UPGRADE 2: nginx 1.27, 3 replicas"`*
+
+![echo "--- ROLLBACK to revision 2 (nginx 1.25, 2 replicas)"; helm rollback rel 2 -n s15; kubectl -n s15 rollout](screenshots/rollback-workflow-04.png)
+
+*Commands: `echo "--- ROLLBACK to revision 2 (nginx 1.25, 2 replicas)"`*
+
+![helm status rel -n s15 | head -n 8; helm uninstall rel -n s15](screenshots/rollback-workflow-05.png)
+
+*Commands: `helm status rel -n s15 | head -n 8`*
+
+<!-- screenshots:end -->

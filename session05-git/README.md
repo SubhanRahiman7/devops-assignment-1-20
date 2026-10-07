@@ -164,3 +164,35 @@ ls: f3.txt: No such file or directory
 
 ### Useful commands
 `git cherry-pick <sha>`, `git cherry-pick A B`, `git cherry-pick --continue / --abort` (when conflicts occur), `git log --oneline --graph --all`.
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Task 1 – commit -a -m vs commit -m
+
+![echo "v1" > tracked.txt; git add tracked.txt; git commit -m "Add tracked.txt"](screenshots/task-1-commit-a-m-vs-commit-m-01.png)
+
+*Commands: `echo "v1" > tracked.txt` · `echo "v2" >> tracked.txt` · `git commit -m "try plain -m without staging"` · `git commit -a -m "update tracked.txt using -a -m"`*
+
+![git log --oneline](screenshots/task-1-commit-a-m-vs-commit-m-02.png)
+
+*Commands: `git log --oneline`*
+
+### Task 2 – cherry-pick
+
+![echo "A" > file.txt; git add file.txt; git commit -m "main: commit 1 - add file.txt"](screenshots/task-2-cherry-pick-01.png)
+
+*Commands: `echo "A" > file.txt` · `echo "B" >> file.txt` · `echo "C" >> file.txt` · `git log --oneline`*
+
+![git log --oneline --graph --all](screenshots/task-2-cherry-pick-02.png)
+
+*Commands: `git log --oneline --graph --all` · `git checkout main` · `git cherry-pick f39f2c5`*
+
+![git log --oneline --graph --all; echo; ls; cat f2.txt](screenshots/task-2-cherry-pick-03.png)
+
+*Commands: `git log --oneline --graph --all` · `git show --stat HEAD` · `ls f1.txt f3.txt 2>&1`*
+
+<!-- screenshots:end -->

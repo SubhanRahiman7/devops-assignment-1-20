@@ -389,3 +389,61 @@ no repositories to show
 * `helm rollback web 1` created **revision 3** ("Rollback to 1") – rollback never rewrites history, it adds a new revision with the old content.
 * `helm test` ran the `test-connection` Pod (`Phase: Succeeded`).
 * `helm repo add bitnami …` + `helm search repo nginx` found charts in the repo; `helm search hub` queries Artifact Hub; `helm pull` downloaded and extracted a chart. (`helm show chart bitnami/nginx` directly from the remote repo failed with a transient CDN error, so the same information is shown from the pulled copy.)
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Helm commands
+
+![helm version --short](screenshots/helm-commands-01.png)
+
+*Commands: `helm version --short` · `helm create demo-chart-new && ls demo-chart-new demo-chart-new/templat` · `helm lint demo-chart`*
+
+![helm template web demo-chart --set image.tag=1.27-alpine | head -n 45](screenshots/helm-commands-02.png)
+
+*Commands: `helm template web demo-chart --set image.tag=1.27-alpine | head -n 45`*
+
+![helm install web demo-chart -n s15 --set image.tag=1.27-alpine](screenshots/helm-commands-03.png)
+
+*Commands: `helm install web demo-chart -n s15 --set image.tag=1.27-alpine` · `kubectl -n s15 rollout status deploy/web-demo-chart --timeout=120s` · `helm list -n s15`*
+
+![helm status web -n s15](screenshots/helm-commands-04.png)
+
+*Commands: `helm status web -n s15`*
+
+![helm get values web -n s15; helm get values web -n s15 --all | head -n 12](screenshots/helm-commands-05.png)
+
+*Commands: `helm get values web -n s15`*
+
+![helm get manifest web -n s15 | head -n 30](screenshots/helm-commands-06.png)
+
+*Commands: `helm get manifest web -n s15 | head -n 30`*
+
+![helm get notes web -n s15](screenshots/helm-commands-07.png)
+
+*Commands: `helm get notes web -n s15`*
+
+![helm get hooks web -n s15; helm get metadata web -n s15](screenshots/helm-commands-08.png)
+
+*Commands: `helm get hooks web -n s15`*
+
+![helm upgrade web demo-chart -n s15 --set image.tag=1.27-alpine --set replicaCount=2](screenshots/helm-commands-09.png)
+
+*Commands: `helm upgrade web demo-chart -n s15 --set image.tag=1.27-alpine --set r` · `kubectl -n s15 rollout status deploy/web-demo-chart --timeout=120s` · `helm history web -n s15`*
+
+![helm rollback web 1 -n s15; kubectl -n s15 rollout status deploy/web-demo-chart --timeout=120s; helm history w](screenshots/helm-commands-10.png)
+
+*Commands: `helm rollback web 1 -n s15` · `helm test web -n s15` · `helm uninstall web -n s15` · `helm repo add bitnami https://charts.bitnami.com/bitnami`*
+
+![helm repo update](screenshots/helm-commands-11.png)
+
+*Commands: `helm repo update` · `helm search repo nginx | head -n 8` · `helm search repo bitnami/nginx --versions | head -n 5` · `helm show chart bitnami/nginx | head -n 15`*
+
+![helm pull bitnami/nginx --untar --destination /tmp/pulled && ls /tmp/pulled/nginx | head](screenshots/helm-commands-12.png)
+
+*Commands: `helm pull bitnami/nginx --untar --destination /tmp/pulled && ls /tmp/p` · `helm show chart /tmp/pulled/nginx | head -n 14      # chart pulled wit` · `helm show values /tmp/pulled/nginx | head -n 8` · `helm repo remove bitnami`*
+
+<!-- screenshots:end -->

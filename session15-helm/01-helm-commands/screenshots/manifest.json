@@ -1,0 +1,115 @@
+[
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-01.png",
+  "cmds": [
+   "helm version --short",
+   "helm create demo-chart-new && ls demo-chart-new demo-chart-new/templates && rm -rf demo-chart-new",
+   "helm lint demo-chart"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-02.png",
+  "cmds": [
+   "helm template web demo-chart --set image.tag=1.27-alpine | head -n 45"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-03.png",
+  "cmds": [
+   "helm install web demo-chart -n s15 --set image.tag=1.27-alpine",
+   "kubectl -n s15 rollout status deploy/web-demo-chart --timeout=120s; kubectl -n s15 get all",
+   "helm list -n s15"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-04.png",
+  "cmds": [
+   "helm status web -n s15"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-05.png",
+  "cmds": [
+   "helm get values web -n s15; helm get values web -n s15 --all | head -n 12"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-06.png",
+  "cmds": [
+   "helm get manifest web -n s15 | head -n 30"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-07.png",
+  "cmds": [
+   "helm get notes web -n s15"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-08.png",
+  "cmds": [
+   "helm get hooks web -n s15; helm get metadata web -n s15"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-09.png",
+  "cmds": [
+   "helm upgrade web demo-chart -n s15 --set image.tag=1.27-alpine --set replicaCount=2",
+   "kubectl -n s15 rollout status deploy/web-demo-chart --timeout=120s; helm list -n s15; kubectl -n s15 get pods",
+   "helm history web -n s15"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-10.png",
+  "cmds": [
+   "helm rollback web 1 -n s15; kubectl -n s15 rollout status deploy/web-demo-chart --timeout=120s; helm history w",
+   "helm test web -n s15",
+   "helm uninstall web -n s15; helm list -n s15; kubectl -n s15 get all",
+   "helm repo add bitnami https://charts.bitnami.com/bitnami",
+   "helm repo list"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-11.png",
+  "cmds": [
+   "helm repo update",
+   "helm search repo nginx | head -n 8",
+   "helm search repo bitnami/nginx --versions | head -n 5",
+   "helm show chart bitnami/nginx | head -n 15",
+   "helm search hub wordpress --max-col-width 60 | head -n 4"
+  ]
+ },
+ {
+  "key": "helm-commands",
+  "heading": "Helm commands",
+  "file": "helm-commands-12.png",
+  "cmds": [
+   "helm pull bitnami/nginx --untar --destination /tmp/pulled && ls /tmp/pulled/nginx | head",
+   "helm show chart /tmp/pulled/nginx | head -n 14      # chart pulled with `helm pull`",
+   "helm show values /tmp/pulled/nginx | head -n 8",
+   "helm repo remove bitnami; helm repo list 2>&1"
+  ]
+ }
+]

@@ -165,3 +165,51 @@ EXPOSE 80
 * `FROM` selects the base image, `COPY` adds code, `RUN` executes at build time, `CMD` is the start command, `EXPOSE` documents the port.
 * `-p host:container` publishes a container port on the host.
 * **Multi-stage builds** (Java, React) compile in a big build image and ship only the output in a small runtime image.
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Build and run all six apps
+
+![docker build -t hello-node ./nodejs-app](screenshots/build-and-run-all-six-apps-01.png)
+
+*Commands: `docker build -t hello-node ./nodejs-app` · `docker run -d --name hello-node -p 3001:3000 hello-node` · `docker build -t hello-python ./python-app` · `docker run -d --name hello-python -p 3002:5000 hello-python`*
+
+### docker ps and images
+
+![docker ps](screenshots/docker-ps-and-images-01.png)
+
+*Commands: `docker ps` · `docker images`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Node.js app – http://localhost:3001**
+
+![Node.js app – http://localhost:3001](screenshots/web-nodejs.png)
+
+**Python app – http://localhost:3002**
+
+![Python app – http://localhost:3002](screenshots/web-python.png)
+
+**Java app – http://localhost:3003**
+
+![Java app – http://localhost:3003](screenshots/web-java.png)
+
+**Apache app – http://localhost:3004**
+
+![Apache app – http://localhost:3004](screenshots/web-apache.png)
+
+**React app – http://localhost:3005**
+
+![React app – http://localhost:3005](screenshots/web-react.png)
+
+**Nginx app – http://localhost:3006**
+
+![Nginx app – http://localhost:3006](screenshots/web-nginx.png)
+
+<!-- web:end -->

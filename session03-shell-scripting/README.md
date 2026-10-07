@@ -123,3 +123,21 @@ The file `process.log` was created by `touch` and then filled with the output of
 * `read -p "prompt" var` asks the user for input.
 * `>` overwrites a file with a command's output (`>>` appends).
 * `mkdir -p` avoids an error if the directory already exists.
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Run system_info.sh
+
+![printf "sysinfo_output\nprocess.log\n" | ./system_info.sh](screenshots/run-system-info-sh-01.png)
+
+*Commands: `printf "sysinfo_output\nprocess.log\n" | ./system_info.sh`*
+
+![ls -la sysinfo_output](screenshots/run-system-info-sh-02.png)
+
+*Commands: `ls -la sysinfo_output`*
+
+<!-- screenshots:end -->

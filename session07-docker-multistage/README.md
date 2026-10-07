@@ -113,3 +113,31 @@ $ curl localhost:3001 ; curl localhost:3002 ; curl localhost:3003
 <h1>Hello World from Python in Docker!</h1>
 <h1>Hello World from Java in Docker!</h1>
 ```
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Build, run and verify on port 8080
+
+![docker build -t multistage-app .](screenshots/build-run-and-verify-on-port-8080-01.png)
+
+*Commands: `docker build -t multistage-app .` · `docker run -d --name multistage -p 8080:8080 multistage-app` · `curl http://localhost:8080` · `docker ps`*
+
+### docker ps – Node, Python, Java apps
+
+![docker ps](screenshots/docker-ps-node-python-java-apps-01.png)
+
+*Commands: `docker ps`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Multi-stage app – http://localhost:8080 ("Hello World from Docker multi-stage build")**
+
+![Multi-stage app – http://localhost:8080 ("Hello World from Docker multi-stage build")](screenshots/web-multistage.png)
+
+<!-- web:end -->

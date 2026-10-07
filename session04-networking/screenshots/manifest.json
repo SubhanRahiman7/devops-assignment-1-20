@@ -1,0 +1,60 @@
+[
+ {
+  "key": "networking-commands",
+  "heading": "Networking commands",
+  "file": "networking-commands-01.png",
+  "cmds": [
+   "hostname; hostname -I",
+   "ip addr show eth0",
+   "ip route",
+   "ip neigh",
+   "cat /etc/resolv.conf | grep -v \"^#\"",
+   "ping -c 4 8.8.8.8"
+  ]
+ },
+ {
+  "key": "networking-commands",
+  "heading": "Networking commands",
+  "file": "networking-commands-02.png",
+  "cmds": [
+   "ping -c 3 google.com",
+   "traceroute -n -m 6 8.8.8.8",
+   "nslookup google.com"
+  ]
+ },
+ {
+  "key": "networking-commands",
+  "heading": "Networking commands",
+  "file": "networking-commands-03.png",
+  "cmds": [
+   "dig +short google.com A; dig +short MX gmail.com | head -n 2",
+   "dig github.com +noall +answer +stats | head -n 6",
+   "curl -sI https://www.google.com | head -n 5",
+   "curl -s -o /dev/null -w \"HTTP %{http_code}, time %{time_total}s\\n\" https://github.com",
+   "curl -s https://ifconfig.me; echo",
+   "ss -tuln | head -n 6"
+  ]
+ },
+ {
+  "key": "networking-commands",
+  "heading": "Networking commands",
+  "file": "networking-commands-04.png",
+  "cmds": [
+   "netstat -tulnp 2>/dev/null | head -n 5",
+   "nc -zv github.com 443; nc -zv -w 2 github.com 81",
+   "netstat -rn",
+   "cat /etc/hosts | head -n 4",
+   "ping -c 2 localhost | head -n 3",
+   "whois google.com | grep -iE \"^(Domain Name|Registrar:|Creation Date)\" | head -n 3",
+   "ip -s link show eth0 | head -n 6"
+  ]
+ },
+ {
+  "key": "networking-commands",
+  "heading": "Networking commands",
+  "file": "networking-commands-05.png",
+  "cmds": [
+   "getent hosts example.com"
+  ]
+ }
+]

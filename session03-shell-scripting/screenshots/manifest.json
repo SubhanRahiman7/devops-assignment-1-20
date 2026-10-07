@@ -1,0 +1,18 @@
+[
+ {
+  "key": "run-system-info-sh",
+  "heading": "Run system_info.sh",
+  "file": "run-system-info-sh-01.png",
+  "cmds": [
+   "printf \"sysinfo_output\\nprocess.log\\n\" | ./system_info.sh"
+  ]
+ },
+ {
+  "key": "run-system-info-sh",
+  "heading": "Run system_info.sh",
+  "file": "run-system-info-sh-02.png",
+  "cmds": [
+   "ls -la sysinfo_output"
+  ]
+ }
+]

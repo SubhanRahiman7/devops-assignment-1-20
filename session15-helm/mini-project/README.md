@@ -150,3 +150,41 @@ pod/web-demo-chart-test-connection      0/1     Completed     0          2m40s
 * `helm install notes-dev notes-chart` → dev release: 1 Pod, `nginx:1.24`, ConfigMap `ENVIRONMENT=development`; Service answered `HTTP 200`.
 * `helm upgrade notes-dev notes-chart -f notes-chart/values-prod.yaml` → **revision 2**: 3 Pods, `nginx:1.25`, `ENVIRONMENT=production` – the **same chart with a different values file** gives a different environment.
 * `helm rollback notes-dev 1` → **revision 3** restores the dev configuration; `helm uninstall` removes everything.
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Mini project
+
+![helm lint notes-chart; helm template notes-dev notes-chart | grep -E "^kind|replicas|image:|ENVIRONMENT"](screenshots/mini-project-01.png)
+
+*Commands: `helm lint notes-chart`*
+
+![helm install notes-dev notes-chart -n s15; kubectl -n s15 rollout status deploy/notes-dev-deploy --timeout=120](screenshots/mini-project-02.png)
+
+*Commands: `helm install notes-dev notes-chart -n s15`*
+
+![kubectl -n s15 exec deploy/notes-dev-deploy -- env | grep -E "APP_NAME|ENVIRONMENT"; kubectl -n s15 get deploy](screenshots/mini-project-03.png)
+
+*Commands: `kubectl -n s15 exec deploy/notes-dev-deploy -- env | grep -E "APP_NAME`*
+
+![echo "--- UPGRADE to production values"; helm upgrade notes-dev notes-chart -n s15 -f notes-chart/values-prod.](screenshots/mini-project-04.png)
+
+*Commands: `echo "--- UPGRADE to production values"`*
+
+![echo "--- ROLLBACK to revision 1"; helm rollback notes-dev 1 -n s15; kubectl -n s15 rollout status deploy/note](screenshots/mini-project-05.png)
+
+*Commands: `echo "--- ROLLBACK to revision 1"` · `helm uninstall notes-dev -n s15`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Notes chart installed with values-prod.yaml (3 replicas, nginx 1.25) – http://localhost:8108**
+
+![Notes chart installed with values-prod.yaml (3 replicas, nginx 1.25) – http://localhost:8108](screenshots/web-notes-chart.png)
+
+<!-- web:end -->

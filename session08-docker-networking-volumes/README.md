@@ -183,3 +183,49 @@ docker swarm init
 docker network create -d overlay --attachable my-overlay
 docker service create --name web --network my-overlay --replicas 3 nginx
 ```
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Task 1 – container networking
+
+![docker network create frontend-net; docker network create backend-net; docker network create db-net](screenshots/task-1-container-networking-01.png)
+
+*Commands: `docker network create frontend-net` · `docker network ls --filter name=-net` · `docker run -d --name database --network db-net -e MYSQL_ROOT_PASSWORD=` · `docker run -d --name backend --network backend-net nginx:alpine | cut `*
+
+![for c in frontend backend database; do echo "== $c"; docker inspect $c | grep -E "\"(backend-net|db-net|fronte](screenshots/task-1-container-networking-02.png)
+
+*Commands: `for c in frontend backend database` · `echo "--- frontend -> backend (same network backend-net)"` · `echo "--- backend -> database (same network db-net)"`*
+
+![echo "--- frontend -> database (no shared network)"; docker exec frontend ping -c 2 -W 2 database](screenshots/task-1-container-networking-03.png)
+
+*Commands: `echo "--- frontend -> database (no shared network)"` · `echo "--- frontend HTTP -> backend"` · `echo "--- backend -> MySQL port 3306"` · `docker exec database mysql -uroot -prootpass123 -e "SHOW DATABASES`*
+
+### Task 2 – host network
+
+![docker pull -q httpd:2.4](screenshots/task-2-host-network-01.png)
+
+*Commands: `docker pull -q httpd:2.4` · `docker run -d --name apache-host --network host httpd:2.4 | cut -c1-12` · `echo "--- reach Apache from another container that also uses the host ` · `docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}\t{{.Statu`*
+
+### Task 3 – bind mount
+
+![cat /tmp/web-content/index.html](screenshots/task-3-bind-mount-01.png)
+
+*Commands: `cat /tmp/web-content/index.html` · `docker run -d --name nginx-bind -p 8081:80 -v /tmp/web-content:/usr/sh` · `echo "Hello students - this file was modified on the host!" > /tmp/web` · `docker inspect -f "{{range .Mounts}}{{.Type}} {{.Source}} -> {{.Destin`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Bind mount – index.html with "Hello students" (http://localhost:8081)**
+
+![Bind mount – index.html with "Hello students" (http://localhost:8081)](screenshots/web-bind-before.png)
+
+**After editing index.html on the host – new content served without restarting the container**
+
+![After editing index.html on the host – new content served without restarting the container](screenshots/web-bind-after.png)
+
+<!-- web:end -->

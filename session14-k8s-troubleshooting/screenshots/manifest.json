@@ -1,0 +1,276 @@
+[
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 01-commands/get-demo.yaml -f 01-commands/logs-demo.yaml -f 01-commands/exec-demo.yaml;",
+   "kubectl -n s14 get pods",
+   "kubectl -n s14 get pods -o wide",
+   "kubectl -n s14 get pods --show-labels; kubectl -n s14 get pods -l app=get-demo"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-02.png",
+  "cmds": [
+   "kubectl -n s14 get pod get-demo -o yaml | head -n 30"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-03.png",
+  "cmds": [
+   "kubectl -n s14 get pod get-demo -o jsonpath=\"{.status.podIP} {.status.phase} {.spec.nodeName}{\\\"\\n\\\"}\"; kubect",
+   "kubectl -n s14 get all; kubectl get nodes -o wide; kubectl get ns"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-04.png",
+  "cmds": [
+   "kubectl -n s14 describe pod get-demo"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-05.png",
+  "cmds": [
+   "kubectl -n s14 logs logs-demo",
+   "kubectl -n s14 logs logs-demo --tail=2; kubectl -n s14 logs logs-demo --since=10s | head -n 3",
+   "kubectl -n s14 exec exec-demo -- nginx -v; kubectl -n s14 exec exec-demo -- cat /etc/os-release | head -n 2; k",
+   "echo \"(interactive form: kubectl exec -it exec-demo -- bash)\"; kubectl -n s14 exec exec-demo -- sh -c \"hostnam"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-06.png",
+  "cmds": [
+   "kubectl -n s14 get events --sort-by=.metadata.creationTimestamp | tail -n 12",
+   "kubectl -n s14 events --for pod/get-demo"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-07.png",
+  "cmds": [
+   "kubectl explain pod | head -n 12; kubectl explain pod.spec.containers.resources"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-08.png",
+  "cmds": [
+   "kubectl explain deployment.spec.strategy.rollingUpdate"
+  ]
+ },
+ {
+  "key": "commands",
+  "heading": "Commands",
+  "file": "commands-09.png",
+  "cmds": [
+   "kubectl top nodes; kubectl -n s14 top pods; kubectl -n s14 top pods --containers"
+  ]
+ },
+ {
+  "key": "crash",
+  "heading": "Crash",
+  "file": "crash-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/crashloopbackoff/broken.yaml; sleep 45; kubectl -n s14 get pod crash-demo",
+   "kubectl -n s14 describe pod crash-demo | grep -E \"State|Reason|Exit Code|Restart Count|BackOff\"; kubectl -n s1",
+   "echo \"--- FIX: container must keep running (pod spec command cannot be edited in place -> recreate)\"; kubectl "
+  ]
+ },
+ {
+  "key": "image",
+  "heading": "Image",
+  "file": "image-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/imagepullbackoff/broken.yaml; sleep 25; kubectl -n s14 get pod image-demo",
+   "kubectl -n s14 describe pod image-demo | grep -E \"Reason|Failed|BackOff|image\" | cut -c1-200",
+   "kubectl -n s14 events --for pod/image-demo | cut -c1-200"
+  ]
+ },
+ {
+  "key": "image",
+  "heading": "Image",
+  "file": "image-02.png",
+  "cmds": [
+   "echo \"--- FIX: correct image tag\"; kubectl -n s14 delete pod image-demo --wait=true; kubectl -n s14 apply -f 0"
+  ]
+ },
+ {
+  "key": "pending",
+  "heading": "Pending",
+  "file": "pending-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/pending/broken.yaml; sleep 5; kubectl -n s14 get pod pending-demo",
+   "kubectl -n s14 describe pod pending-demo | grep -E \"Node-Selectors|Status:|FailedScheduling\" | cut -c1-200",
+   "kubectl get nodes --show-labels | tr \",\" \"\\n\" | grep hostname",
+   "echo \"--- FIX: remove the impossible nodeSelector\"; kubectl -n s14 delete pod pending-demo --wait=true; kubect"
+  ]
+ },
+ {
+  "key": "creating",
+  "heading": "Creating",
+  "file": "creating-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/containercreating/broken.yaml; sleep 8; kubectl -n s14 get pod creating-demo",
+   "kubectl -n s14 describe pod creating-demo | grep -E \"Status:|FailedMount|configmap\" | cut -c1-200",
+   "echo \"--- FIX: create the missing ConfigMap\"; kubectl -n s14 apply -f 02-issues/containercreating/fix-configma"
+  ]
+ },
+ {
+  "key": "service",
+  "heading": "Service",
+  "file": "service-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/service-connectivity/deployment.yaml -f 02-issues/service-connectivity/broke",
+   "kubectl -n s14 exec dns-client -- curl -s -m 4 -o /dev/null -w \"HTTP %{http_code}\\n\" http://web-service || ech",
+   "kubectl -n s14 get svc web-service; kubectl -n s14 get endpoints web-service",
+   "kubectl -n s14 describe svc web-service | grep -E \"Selector|Endpoints|TargetPort\"; kubectl -n s14 get pods --s",
+   "echo \"--- FIX 1: selector must match the Pod label (app: web)\"; kubectl -n s14 apply -f 02-issues/service-conn"
+  ]
+ },
+ {
+  "key": "service",
+  "heading": "Service",
+  "file": "service-02.png",
+  "cmds": [
+   "echo \"--- Second bug: wrong targetPort\"; kubectl -n s14 apply -f 02-issues/service-connectivity/wrong-targetpo",
+   "kubectl -n s14 describe svc web-service | grep -E \"Port|TargetPort|Endpoints\"; kubectl -n s14 exec web-$(kubec",
+   "echo \"--- FIX 2: targetPort 80\"; kubectl -n s14 apply -f 02-issues/service-connectivity/fixed-service.yaml; sl"
+  ]
+ },
+ {
+  "key": "dns",
+  "heading": "Dns",
+  "file": "dns-01.png",
+  "cmds": [
+   "kubectl -n s14 exec dns-client -- nslookup web-servce.s14.svc.cluster.local 2>&1 | tail -n 3",
+   "echo \"--- wrong name (typo) -> NXDOMAIN; correct name:\"; kubectl -n s14 exec dns-client -- nslookup web-servic",
+   "echo \"--- cross-namespace short name fails, qualified name works:\"; kubectl -n s14 exec dns-client -- curl -s ",
+   "kubectl -n s14 exec dns-client -- cat /etc/resolv.conf; kubectl -n kube-system get pods -l k8s-app=kube-dns; k"
+  ]
+ },
+ {
+  "key": "dns",
+  "heading": "Dns",
+  "file": "dns-02.png",
+  "cmds": [
+   "echo \"--- simulate CoreDNS outage\"; kubectl -n kube-system scale deploy coredns --replicas=0; sleep 6; kubectl",
+   "echo \"--- FIX: restore CoreDNS\"; kubectl -n kube-system scale deploy coredns --replicas=1; kubectl -n kube-sys"
+  ]
+ },
+ {
+  "key": "networking",
+  "heading": "Networking",
+  "file": "networking-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/pod-networking/server.yaml; kubectl -n s14 wait --for=condition=Ready pod/ne",
+   "SIP=$(kubectl -n s14 get pod net-server -o jsonpath=\"{.status.podIP}\"); echo \"server IP $SIP\"; kubectl -n s14 ",
+   "cat <<YAML | kubectl -n s14 apply -f -",
+   "SIP=$(kubectl -n s14 get pod net-server -o jsonpath=\"{.status.podIP}\"); kubectl -n s14 exec net-client -- curl"
+  ]
+ },
+ {
+  "key": "networking",
+  "heading": "Networking",
+  "file": "networking-02.png",
+  "cmds": [
+   "kubectl -n s14 describe networkpolicy deny-all-ingress | head -n 12",
+   "echo \"--- FIX: delete/adjust the policy (allow client -> server)\"; cat <<YAML | kubectl -n s14 apply -f -"
+  ]
+ },
+ {
+  "key": "config",
+  "heading": "Config",
+  "file": "config-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/configuration/broken.yaml; sleep 8; kubectl -n s14 get pod config-demo",
+   "kubectl -n s14 describe pod config-demo | grep -E \"Status:|State|Reason|Error|couldn.t find key\" | cut -c1-200",
+   "echo \"--- FIX: add the missing key to the ConfigMap (Pod retries automatically)\"; kubectl -n s14 patch configm"
+  ]
+ },
+ {
+  "key": "oom",
+  "heading": "Oom",
+  "file": "oom-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/oomkilled/broken.yaml; sleep 15; kubectl -n s14 get pod fail-5-oomkilled-pod",
+   "kubectl -n s14 describe pod fail-5-oomkilled-pod | grep -E \"State|Reason|Exit Code|Limits|memory|Restart\" | he",
+   "echo \"--- FIX: raise the memory limit / fix the leak\"; kubectl -n s14 delete pod fail-5-oomkilled-pod --wait=t"
+  ]
+ },
+ {
+  "key": "oom",
+  "heading": "Oom",
+  "file": "oom-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f 02-issues/oomkilled/broken.yaml; sleep 20; kubectl -n s14 get pod fail-5-oomkilled-pod",
+   "kubectl -n s14 describe pod fail-5-oomkilled-pod | grep -E \"State|Reason|Exit Code|Limits|memory:|Restart\" | h",
+   "echo \"--- FIX: raise the memory limit / fix the leak\"; kubectl -n s14 delete pod fail-5-oomkilled-pod --wait=t"
+  ]
+ },
+ {
+  "key": "mini",
+  "heading": "Mini",
+  "file": "mini-01.png",
+  "cmds": [
+   "kubectl -n s14 apply -f deployment.yaml -f service.yaml; kubectl -n s14 rollout status deploy/troubleshooting-"
+  ]
+ },
+ {
+  "key": "mini",
+  "heading": "Mini",
+  "file": "mini-02.png",
+  "cmds": [
+   "kubectl -n s14 get pods -o wide; POD=$(kubectl -n s14 get pods -o jsonpath=\"{.items[0].metadata.name}\"); kubec"
+  ]
+ },
+ {
+  "key": "mini",
+  "heading": "Mini",
+  "file": "mini-03.png",
+  "cmds": [
+   "POD=$(kubectl -n s14 get pods -o jsonpath=\"{.items[0].metadata.name}\"); kubectl -n s14 logs $POD | tail -n 3; ",
+   "kubectl -n s14 describe service troubleshooting-service | grep -E \"Name:|Selector|Port|TargetPort|Endpoints\"; ",
+   "kubectl -n s14 apply -f broken-pod.yaml; sleep 25; kubectl -n s14 get pod project-broken-pod"
+  ]
+ },
+ {
+  "key": "mini",
+  "heading": "Mini",
+  "file": "mini-04.png",
+  "cmds": [
+   "kubectl -n s14 describe pod project-broken-pod | sed -n \"/State:/,/Ready:/p;/Events:/,\\$p\" | cut -c1-210",
+   "echo \"--- FIX: use an existing image tag\"; kubectl -n s14 delete pod project-broken-pod --wait=true; sed \"s/ng"
+  ]
+ },
+ {
+  "key": "mini",
+  "heading": "Mini",
+  "file": "mini-05.png",
+  "cmds": [
+   "kubectl -n s14 get service troubleshooting-service -o jsonpath=\"{.spec.selector}\"; echo; kubectl -n s14 patch ",
+   "kubectl -n s14 get pods --show-labels | grep troubleshooting-app; kubectl -n s14 describe service troubleshoot"
+  ]
+ },
+ {
+  "key": "mini",
+  "heading": "Mini",
+  "file": "mini-06.png",
+  "cmds": [
+   "echo \"--- FIX: selector back to app: troubleshooting-app\"; kubectl -n s14 patch service troubleshooting-servic",
+   "kubectl -n s14 get pods,svc,endpoints"
+  ]
+ }
+]

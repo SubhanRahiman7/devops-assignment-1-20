@@ -1,0 +1,79 @@
+[
+ {
+  "key": "configmap",
+  "heading": "Configmap",
+  "file": "configmap-01.png",
+  "cmds": [
+   "cat 01-configmap/configmap.yaml | head -n 6; kubectl -n s12 apply -f 01-configmap/configmap.yaml; kubectl -n s"
+  ]
+ },
+ {
+  "key": "configmap",
+  "heading": "Configmap",
+  "file": "configmap-02.png",
+  "cmds": [
+   "kubectl -n s12 apply -f 01-configmap/pod-env.yaml -f 01-configmap/pod-volume.yaml; kubectl -n s12 wait --for=c",
+   "echo \"--- env vars inside the container:\"; kubectl -n s12 exec cm-env-pod -- env | grep -E \"^(ENVIRONMENT|LOG_",
+   "echo \"--- files mounted from the ConfigMap:\"; kubectl -n s12 exec cm-volume-pod -- ls -l /etc/config; kubectl ",
+   "echo \"--- change the ConfigMap, watch the mounted file update (no Pod restart):\"; kubectl -n s12 patch configm"
+  ]
+ },
+ {
+  "key": "secret",
+  "heading": "Secret",
+  "file": "secret-01.png",
+  "cmds": [
+   "kubectl -n s12 apply -f 02-secret/secret.yaml; kubectl -n s12 get secret db-secret; kubectl -n s12 get secret ",
+   "echo \"--- base64 is NOT encryption (anyone with read access can decode):\"; kubectl -n s12 get secret db-secret",
+   "kubectl -n s12 apply -f 02-secret/pod-secret.yaml; kubectl -n s12 wait --for=condition=Ready pod/secret-pod --",
+   "kubectl -n s12 describe secret db-secret"
+  ]
+ },
+ {
+  "key": "ingress",
+  "heading": "Ingress",
+  "file": "ingress-01.png",
+  "cmds": [
+   "kubectl -n s12 apply -f 03-ingress/configmap.yaml -f 03-ingress/secret.yaml -f 03-ingress/frontend.yaml -f 03-",
+   "kubectl -n s12 rollout status deploy/yatri-frontend --timeout=120s; kubectl -n s12 rollout status deploy/yatri"
+  ]
+ },
+ {
+  "key": "ingress",
+  "heading": "Ingress",
+  "file": "ingress-02.png",
+  "cmds": [
+   "kubectl -n s12 apply -f 03-ingress/ingress.yaml; sleep 8; kubectl -n s12 get ingress; kubectl -n s12 describe "
+  ]
+ },
+ {
+  "key": "ingress",
+  "heading": "Ingress",
+  "file": "ingress-03.png",
+  "cmds": [
+   "echo \"--- GET / (Host: yatri.local) -> frontend:\"; curl -s -H \"Host: yatri.local\" http://localhost:8088/ | gre",
+   "echo \"--- wrong host -> default backend (404):\"; curl -s -o /dev/null -w \"HTTP %{http_code}\\n\" -H \"Host: unkno"
+  ]
+ },
+ {
+  "key": "trouble",
+  "heading": "Trouble",
+  "file": "trouble-01.png",
+  "cmds": [
+   "echo \"--- BEFORE: secret created the wrong way (echo without -n)\"; echo \"mypassword\" | base64; echo -n \"mypass",
+   "echo \"mypassword\" | xxd | head -n 2",
+   "kubectl -n s12 create secret generic db-pass --from-literal=password=\"$(echo \"mypassword\" | base64 -d >/dev/nu",
+   "kubectl -n s12 apply -f 05-troubleshooting/db-client.yaml; kubectl -n s12 wait --for=condition=Ready pod/db-cl",
+   "kubectl -n s12 get secret db-pass -o jsonpath=\"{.data.password}\"; echo; kubectl -n s12 get secret db-pass -o j",
+   "echo \"--- FIX: recreate the Secret with echo -n / --from-literal\"; kubectl -n s12 delete pod db-client --wait="
+  ]
+ },
+ {
+  "key": "trouble",
+  "heading": "Trouble",
+  "file": "trouble-02.png",
+  "cmds": [
+   "kubectl -n s12 apply -f 05-troubleshooting/db-client.yaml; kubectl -n s12 wait --for=condition=Ready pod/db-cl"
+  ]
+ }
+]

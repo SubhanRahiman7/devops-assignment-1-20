@@ -378,3 +378,63 @@ AUTH OK
 
 ---
 Cleanup: `kubectl delete ns s12` (the NGINX ingress addon was left enabled).
+
+<!-- screenshots:start -->
+
+## Screenshots (terminal output of the live run)
+
+> Each image shows the real output of the commands run for this task (rendered from the captured terminal output of the actual run).
+
+### Configmap
+
+![cat 01-configmap/configmap.yaml | head -n 6; kubectl -n s12 apply -f 01-configmap/configmap.yaml; kubectl -n s](screenshots/configmap-01.png)
+
+*Commands: `cat 01-configmap/configmap.yaml | head -n 6`*
+
+![kubectl -n s12 apply -f 01-configmap/pod-env.yaml -f 01-configmap/pod-volume.yaml; kubectl -n s12 wait --for=c](screenshots/configmap-02.png)
+
+*Commands: `kubectl -n s12 apply -f 01-configmap/pod-env.yaml -f 01-configmap/pod-` · `echo "--- env vars inside the container:"` · `echo "--- files mounted from the ConfigMap:"` · `echo "--- change the ConfigMap, watch the mounted file update (no Pod `*
+
+### Secret
+
+![kubectl -n s12 apply -f 02-secret/secret.yaml; kubectl -n s12 get secret db-secret; kubectl -n s12 get secret ](screenshots/secret-01.png)
+
+*Commands: `kubectl -n s12 apply -f 02-secret/secret.yaml` · `echo "--- base64 is NOT encryption (anyone with read access can decode` · `kubectl -n s12 apply -f 02-secret/pod-secret.yaml` · `kubectl -n s12 describe secret db-secret`*
+
+### Ingress
+
+![kubectl -n s12 apply -f 03-ingress/configmap.yaml -f 03-ingress/secret.yaml -f 03-ingress/frontend.yaml -f 03-](screenshots/ingress-01.png)
+
+*Commands: `kubectl -n s12 apply -f 03-ingress/configmap.yaml -f 03-ingress/secret` · `kubectl -n s12 rollout status deploy/yatri-frontend --timeout=120s`*
+
+![kubectl -n s12 apply -f 03-ingress/ingress.yaml; sleep 8; kubectl -n s12 get ingress; kubectl -n s12 describe ](screenshots/ingress-02.png)
+
+*Commands: `kubectl -n s12 apply -f 03-ingress/ingress.yaml`*
+
+![echo "--- GET / (Host: yatri.local) -> frontend:"; curl -s -H "Host: yatri.local" http://localhost:8088/ | gre](screenshots/ingress-03.png)
+
+*Commands: `echo "--- GET / (Host: yatri.local) -> frontend:"` · `echo "--- wrong host -> default backend (404):"`*
+
+### Trouble
+
+![echo "--- BEFORE: secret created the wrong way (echo without -n)"; echo "mypassword" | base64; echo -n "mypass](screenshots/trouble-01.png)
+
+*Commands: `echo "--- BEFORE: secret created the wrong way (echo without -n)"` · `echo "mypassword" | xxd | head -n 2` · `kubectl -n s12 create secret generic db-pass --from-literal=password="` · `kubectl -n s12 apply -f 05-troubleshooting/db-client.yaml`*
+
+![kubectl -n s12 apply -f 05-troubleshooting/db-client.yaml; kubectl -n s12 wait --for=condition=Ready pod/db-cl](screenshots/trouble-02.png)
+
+*Commands: `kubectl -n s12 apply -f 05-troubleshooting/db-client.yaml`*
+
+<!-- screenshots:end -->
+
+## Screenshots (browser)
+
+**Ingress: http://yatri.local/ → frontend Service (nginx)**
+
+![Ingress: http://yatri.local/ → frontend Service (nginx)](screenshots/web-ingress-frontend.png)
+
+**Ingress: http://yatri.local/api/ → backend Service (shows values injected from ConfigMap and Secret)**
+
+![Ingress: http://yatri.local/api/ → backend Service (shows values injected from ConfigMap and Secret)](screenshots/web-ingress-backend.png)
+
+<!-- web:end -->

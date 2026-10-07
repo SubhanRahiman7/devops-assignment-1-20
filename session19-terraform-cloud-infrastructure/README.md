@@ -632,6 +632,7 @@ Resources are destroyed in the **reverse** dependency order (instance first, VPC
 
 
 
+
 ## Attempt on real AWS (blocked by the account's organisation policy)
 
 The same project was also run against **real AWS** (region `ap-south-1`, IAM user with `AdministratorAccess` in an AWS Organizations member account). The account's policies block the services this project needs: Terraform's data sources failed with **HTTP 403** (`ec2:DescribeAvailabilityZones`, `ec2:DescribeImages`), so the plan could not be completed, and even a read-only `aws ec2 describe-vpcs` returns *UnauthorizedOperation*; S3 is explicitly denied by a Service Control Policy (see Session 18). Terraform therefore refused to apply (`Cannot apply incomplete plan`): **no resources were created on AWS, no cost was incurred and `terraform destroy` had nothing to remove**. The account ID is redacted. All other results in this README come from the local emulator.
@@ -653,14 +654,14 @@ Changes to Outputs:
   + security_group_id   = (known after apply)
   + vpc_cidr            = "10.20.0.0/16"
   + vpc_id              = (known after apply)
-Error: fetching Availability Zones: operation error EC2: DescribeAvailabilityZones, https response error StatusCode: 403, RequestID: <id>e89124-a409-4536-8c80-ef731c74c5a4, api error UnauthorizedOperation: You are not authorized t
-Error: reading EC2 AMIs: operation error EC2: DescribeImages, https response error StatusCode: 403, RequestID: <id>f5c4-9108-447c-875c-e10763c79d3b, api error UnauthorizedOperation: You are not authorized to perform this operation
+Error: fetching Availability Zones: operation error EC2: DescribeAvailabilityZones, https response error StatusCode: 403, RequestID: <id>, api error UnauthorizedOperation: You are not authorized to perform this operation. User: arn:aws:iam::<ACCOUNT_ID>:user/terraform-training is not authorized to perform: ec2:DescribeAvailabilityZones with an explicit deny in a service control policy: arn:aws:organizations::<ORG_MGM
+Error: reading EC2 AMIs: operation error EC2: DescribeImages, https response error StatusCode: 403, RequestID: <id>, api error UnauthorizedOperation: You are not authorized to perform this operation. User: arn:aws:iam::<ACCOUNT_ID>:user/terraform-training is not authorized to perform: ec2:DescribeImages with an explicit deny in a service control policy: arn:aws:organizations::<ORG_MGMT_ACCOUNT_ID>:policy/<ORG_ID>/ser
 
 $ terraform apply -no-color -auto-approve s19.tfplan
 Error: Cannot apply incomplete plan - Terraform encountered an error when generating this plan, so it cannot be applied.
 
 $ aws ec2 describe-vpcs --filters Name=tag:Name,Values=session19-vpc
-aws: [ERROR]: An error occurred (UnauthorizedOperation) when calling the DescribeVpcs operation: You are not authorized to perform this operation. User: arn:aws:iam::<ACCOUNT_ID>:user/terraform-training is not authorized to perfor
+aws: [ERROR]: An error occurred (UnauthorizedOperation) when calling the DescribeVpcs operation: You are not authorized to perform this operation. User: arn:aws:iam::<ACCOUNT_ID>:user/terraform-training is not authorized to perform: ec2:DescribeVpcs with an explicit deny in a service control policy: arn:aws:organizations::<ORG_MGMT_ACCOUNT_ID>:policy/<ORG_ID>/service_control_policy/<POLICY_ID>
 ```
 
 ![Real AWS attempt - EC2 and S3 blocked](screenshots/real-aws-attempt-01.png)

@@ -1,0 +1,9 @@
+# Gitleaks (secret scanning) configuration
+title = "session17 gitleaks config"
+
+[extend]
+useDefault = true            # keep all built-in rules (AWS keys, tokens, private keys, ...)
+
+[allowlist]
+description = "paths that never contain real secrets"
+paths = ['''(^|/)tests/''', '''\.md$''']

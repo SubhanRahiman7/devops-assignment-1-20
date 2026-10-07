@@ -629,6 +629,43 @@ Resources are destroyed in the **reverse** dependency order (instance first, VPC
 * Costs: the t3.micro instance and public IPv4 address are billed while running (free-tier eligible in many accounts); always finish with `terraform destroy`.
 * AWS Console screenshots (VPC / EC2 / S3 pages) require a real account login and are therefore not included; the terminal screenshots below show the same facts (Terraform + AWS CLI output).
 
+
+
+
+## Attempt on real AWS (blocked by the account's organisation policy)
+
+The same project was also run against **real AWS** (region `ap-south-1`, IAM user with `AdministratorAccess` in an AWS Organizations member account). The account's policies block the services this project needs: Terraform's data sources failed with **HTTP 403** (`ec2:DescribeAvailabilityZones`, `ec2:DescribeImages`), so the plan could not be completed, and even a read-only `aws ec2 describe-vpcs` returns *UnauthorizedOperation*; S3 is explicitly denied by a Service Control Policy (see Session 18). Terraform therefore refused to apply (`Cannot apply incomplete plan`): **no resources were created on AWS, no cost was incurred and `terraform destroy` had nothing to remove**. The account ID is redacted. All other results in this README come from the local emulator.
+
+```text
+$ terraform plan -no-color -out=s19.tfplan 2>&1 | grep -E "^  # |^Plan:|^Changes|^  \+ (vpc|public|internet|security|instance|bucket)|Error"
+  # aws_internet_gateway.igw will be created
+  # aws_route_table.public will be created
+  # aws_s3_bucket.artifacts will be created
+  # aws_s3_bucket_public_access_block.artifacts will be created
+  # aws_s3_bucket_versioning.artifacts will be created
+  # aws_security_group.web will be created
+  # aws_vpc.main will be created
+Plan: 7 to add, 0 to change, 0 to destroy.
+Changes to Outputs:
+  + bucket_arn          = (known after apply)
+  + bucket_name         = "subhan-rahiman-s19-24bcs10095"
+  + internet_gateway_id = (known after apply)
+  + security_group_id   = (known after apply)
+  + vpc_cidr            = "10.20.0.0/16"
+  + vpc_id              = (known after apply)
+Error: fetching Availability Zones: operation error EC2: DescribeAvailabilityZones, https response error StatusCode: 403, RequestID: <id>e89124-a409-4536-8c80-ef731c74c5a4, api error UnauthorizedOperation: You are not authorized t
+Error: reading EC2 AMIs: operation error EC2: DescribeImages, https response error StatusCode: 403, RequestID: <id>f5c4-9108-447c-875c-e10763c79d3b, api error UnauthorizedOperation: You are not authorized to perform this operation
+
+$ terraform apply -no-color -auto-approve s19.tfplan
+Error: Cannot apply incomplete plan - Terraform encountered an error when generating this plan, so it cannot be applied.
+
+$ aws ec2 describe-vpcs --filters Name=tag:Name,Values=session19-vpc
+aws: [ERROR]: An error occurred (UnauthorizedOperation) when calling the DescribeVpcs operation: You are not authorized to perform this operation. User: arn:aws:iam::<ACCOUNT_ID>:user/terraform-training is not authorized to perfor
+```
+
+![Real AWS attempt - EC2 and S3 blocked](screenshots/real-aws-attempt-01.png)
+
+<!-- real-aws:end -->
 <!-- screenshots:start -->
 
 

@@ -420,6 +420,34 @@ aws_s3_bucket_versioning.demo
 * The bucket was verified independently with the AWS CLI (listing, versioning status `Enabled`, all four public-access blocks `true`).
 * `destroy` removed all 3 resources; the state became empty and the bucket list empty.
 
+
+
+
+## Attempt on real AWS (blocked by the account's organisation policy)
+
+The same project was also run against **real AWS** (region `ap-south-1`, an IAM user with `AdministratorAccess` in an AWS Organizations member account). `init`, `fmt`, `validate` and `plan` succeeded, but **`apply` was rejected by AWS**: the organisation's **Service Control Policy explicitly denies `s3:CreateBucket`** (and even `s3:ListAllMyBuckets`), so S3 cannot be used in this account whatever the IAM permissions are. No bucket was created and nothing needs to be destroyed. The account ID is redacted. The complete workflow output in this README therefore comes from the local emulator.
+
+```text
+$ terraform validate
+Success! The configuration is valid.
+
+$ terraform plan -out=s3.tfplan
+Plan: 3 to add, 0 to change, 0 to destroy.
+
+$ terraform apply -auto-approve s3.tfplan
+Error: creating S3 Bucket (subhan-rahiman-s18-24bcs10095): operation error S3: CreateBucket, https response error StatusCode: 403, RequestID: <id>, HostID: <id>, api error AccessDenied: User: arn:aws:iam::<ACCOUNT_ID>:user/terrafo
+
+  with aws_s3_bucket.demo,
+  on main.tf line 1, in resource "aws_s3_bucket" "demo":
+   1: resource "aws_s3_bucket" "demo" {
+
+$ aws s3 ls
+aws: [ERROR]: An error occurred (AccessDenied) when calling the ListBuckets operation: User: arn:aws:iam::<ACCOUNT_ID>:user/terraform-training is not authorized to perform: s3:ListAllMyBuckets with an explicit deny in a service co
+```
+
+![Real AWS attempt - S3 denied by SCP](screenshots/real-aws-attempt-01.png)
+
+<!-- real-aws:end -->
 <!-- screenshots:start -->
 
 

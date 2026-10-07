@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Name** | Subhan Rahiman |
-| **Enrollment number** | `<ENROLLMENT-NUMBER>` |
+| **Enrollment number** | 24BCS10095 |
 
 ## Task 1 – Run the multi-stage Dockerfile
 The multi-stage Dockerfile comes from the course repository (`session6-7-docker/multi-stage-dockerfile`). I adjusted it so the app prints exactly **"Hello World from Docker multi-stage build"** and listens on **port 8080**. Code: [`multistage-app/`](multistage-app/).

@@ -1,0 +1,36 @@
+[
+ {
+  "key": "ci-steps-locally",
+  "heading": "CI steps locally",
+  "file": "ci-steps-locally-01.png",
+  "cmds": [
+   "ls -R app tests requirements.txt Dockerfile build.sh",
+   "/tmp/v16/bin/python -m pytest -v 2>&1 | tail -n 20"
+  ]
+ },
+ {
+  "key": "ci-steps-locally",
+  "heading": "CI steps locally",
+  "file": "ci-steps-locally-02.png",
+  "cmds": [
+   "./build.sh | tail -n 8; cat build/build-info.txt; rm -rf build"
+  ]
+ },
+ {
+  "key": "docker",
+  "heading": "Docker",
+  "file": "docker-01.png",
+  "cmds": [
+   "docker build -t s16-calc --build-arg APP_VERSION=local . 2>&1 | tail -n 4",
+   "docker run -d --name s16 -p 8010:8000 s16-calc; sleep 3; curl -s localhost:8010/health; echo; curl -s \"localho"
+  ]
+ },
+ {
+  "key": "pipeline-result-from-the-github-api",
+  "heading": "Pipeline result from the GitHub API",
+  "file": "pipeline-result-from-the-github-api-01.png",
+  "cmds": [
+   "python3 /tmp/s16_api.py"
+  ]
+ }
+]

@@ -1,0 +1,7 @@
+# Fix: create the missing ConfigMap (the kubelet retries the mount automatically)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: missing-config
+data:
+  app.conf: "mode=production"

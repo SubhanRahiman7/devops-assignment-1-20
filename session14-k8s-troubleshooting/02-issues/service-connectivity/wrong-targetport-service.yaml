@@ -1,0 +1,12 @@
+# Second connectivity bug: selector is right, but targetPort is wrong
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+spec:
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 8080   # nginx listens on 80
+  type: ClusterIP

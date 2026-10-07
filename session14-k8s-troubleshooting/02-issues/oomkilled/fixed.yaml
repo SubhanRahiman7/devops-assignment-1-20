@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fail-5-oomkilled-pod
+spec:
+  containers:
+    - name: memory-leaker
+      image: python:3.11-alpine
+      command: ["python3", "-c", "chunks=[b'x'*(10*1024*1024) for i in range(10)]; print('allocated 100MB OK'); import time; time.sleep(3600)"]
+      resources:
+        limits:
+          memory: "256Mi"

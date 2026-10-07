@@ -1,0 +1,25 @@
+# Server Pod + a default-deny NetworkPolicy (typical cause of "Pod cannot reach Pod")
+apiVersion: v1
+kind: Pod
+metadata:
+  name: net-server
+  labels:
+    app: net-server
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.27
+      ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: net-client
+  labels:
+    app: net-client
+spec:
+  containers:
+    - name: client
+      image: curlimages/curl:8.10.1
+      command: ["sleep", "3600"]

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hw-student-pvc
+spec:
+  storageClassName: manual   # must match the PV, otherwise the default StorageClass provisions a new volume
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi

@@ -231,4 +231,10 @@ def server_error(e):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    # Security fix (Bandit B201/B104): never run the Werkzeug debugger by default and
+    # do not hard-code a bind-all address; the container sets HOST=0.0.0.0 explicitly.
+    app.run(
+        host=os.environ.get("HOST", "127.0.0.1"),
+        port=int(os.environ.get("PORT", "5001")),
+        debug=os.environ.get("FLASK_DEBUG", "0") == "1",
+    )

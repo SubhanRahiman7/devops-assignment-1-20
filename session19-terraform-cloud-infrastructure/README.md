@@ -633,6 +633,11 @@ Resources are destroyed in the **reverse** dependency order (instance first, VPC
 
 
 
+## Real AWS run (student's own earlier `terraform apply`)
+The screenshot below is a **real `terraform apply` on AWS** that I ran earlier (29 September, shown by the terminal clock) with the course's reference project **`06-terraform-vpc`** – the networking part of this session: a VPC (`10.0.0.0/16`), an Internet Gateway, a public subnet, a public route table with its association, and a web security group (**6 resources created, with real AWS IDs**: `vpc-0cecce…`, `igw-0833…`, `rtb-063c…`, `sg-03f1…`, `subnet-0abb…`, `rtbassoc-0fdc…`), followed by `terraform output`. The `plan`/`destroy` steps and the larger project in this folder (VPC **plus EC2 and S3**) could not be run on AWS afterwards because the account's organisation policy blocks EC2 and S3 (see the next section), so those results come from the local emulator above.
+
+![Real terraform apply on AWS - 6 resources added, outputs printed](screenshots/real-aws-apply-student-run.png)
+
 ## Attempt on real AWS (blocked by the account's organisation policy)
 
 The same project was also run against **real AWS** (region `ap-south-1`, IAM user with `AdministratorAccess` in an AWS Organizations member account). The account's policies block the services this project needs: Terraform's data sources failed with **HTTP 403** (`ec2:DescribeAvailabilityZones`, `ec2:DescribeImages`), so the plan could not be completed, and even a read-only `aws ec2 describe-vpcs` returns *UnauthorizedOperation*; S3 is explicitly denied by a Service Control Policy (see Session 18). Terraform therefore refused to apply (`Cannot apply incomplete plan`): **no resources were created on AWS, no cost was incurred and `terraform destroy` had nothing to remove**. The account ID is redacted. All other results in this README come from the local emulator.

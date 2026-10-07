@@ -1,0 +1,84 @@
+[
+ {
+  "key": "init-fmt-validate",
+  "heading": "init, fmt, validate",
+  "file": "init-fmt-validate-01.png",
+  "cmds": [
+   "ls -1",
+   "terraform init -no-color 2>&1 | grep -vE \"^$|lock file|Include this|selections|you run|Warning|Due to|calculat",
+   "terraform fmt -check -diff -no-color; echo \"terraform fmt exit code: $?\"",
+   "terraform validate -no-color"
+  ]
+ },
+ {
+  "key": "plan",
+  "heading": "plan",
+  "file": "plan-01.png",
+  "cmds": [
+   "terraform plan -no-color -var-file=local-emulator.tfvars -out=s19.tfplan 2>&1 | grep -E \"^  # |^Plan:|^Changes"
+  ]
+ },
+ {
+  "key": "apply",
+  "heading": "apply",
+  "file": "apply-01.png",
+  "cmds": [
+   "terraform apply -no-color -auto-approve s19.tfplan"
+  ]
+ },
+ {
+  "key": "outputs-and-state",
+  "heading": "outputs and state",
+  "file": "outputs-and-state-01.png",
+  "cmds": [
+   "terraform output",
+   "terraform state list"
+  ]
+ },
+ {
+  "key": "outputs-and-state",
+  "heading": "outputs and state",
+  "file": "outputs-and-state-02.png",
+  "cmds": [
+   "terraform state show aws_instance.web | head -n 22"
+  ]
+ },
+ {
+  "key": "verify-with-the-aws-cli",
+  "heading": "verify with the AWS CLI",
+  "file": "verify-with-the-aws-cli-01.png",
+  "cmds": [
+   "AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=ap-south-1 aws --endpoint-url http://loca",
+   "AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=ap-south-1 aws --endpoint-url http://loca",
+   "AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=ap-south-1 aws --endpoint-url http://loca"
+  ]
+ },
+ {
+  "key": "verify-with-the-aws-cli",
+  "heading": "verify with the AWS CLI",
+  "file": "verify-with-the-aws-cli-02.png",
+  "cmds": [
+   "AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=ap-south-1 aws --endpoint-url http://loca",
+   "AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=ap-south-1 aws --endpoint-url http://loca",
+   "AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGION=ap-south-1 aws --endpoint-url http://loca"
+  ]
+ },
+ {
+  "key": "idempotency-and-dependency-graph",
+  "heading": "idempotency and dependency graph",
+  "file": "idempotency-and-dependency-graph-01.png",
+  "cmds": [
+   "terraform plan -no-color -var-file=local-emulator.tfvars 2>&1 | sed -n \"/will be updated/,\\$p\" | head -n 22",
+   "terraform graph | grep -E \"\\->\" | grep -v \"provider\\[\" | head -n 14"
+  ]
+ },
+ {
+  "key": "destroy",
+  "heading": "destroy",
+  "file": "destroy-01.png",
+  "cmds": [
+   "terraform destroy -no-color -auto-approve -var-file=local-emulator.tfvars 2>&1 | grep -E \"Destroying|Destructi",
+   "terraform state list; echo '(empty state)'; AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_DEFAULT_REGI"
+  ]
+ }
+]

@@ -1,0 +1,21 @@
+# Simulates an app authenticating with the password from a Secret
+apiVersion: v1
+kind: Pod
+metadata:
+  name: db-client
+spec:
+  restartPolicy: Never
+  containers:
+    - name: client
+      image: busybox:1.36
+      command:
+        - sh
+        - -c
+        - |
+          echo "password length seen by app: $(printf '%s' "$DB_PASSWORD" | wc -c)"
+          if [ "$DB_PASSWORD" = "mypassword" ]; then echo "AUTH OK"; else echo "FATAL: password authentication failed for user admin"; fi
+          sleep 3600
+      env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef: { name: db-pass, key: password }

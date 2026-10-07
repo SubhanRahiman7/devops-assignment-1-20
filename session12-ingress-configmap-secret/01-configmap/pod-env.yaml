@@ -1,0 +1,20 @@
+# Inject ConfigMap as environment variables (envFrom) and one key explicitly (valueFrom)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cm-env-pod
+spec:
+  restartPolicy: Never
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "env | grep -E 'ENVIRONMENT|LOG_LEVEL|DEFAULT_CURRENCY|MY_LEVEL'; sleep 3600"]
+      envFrom:
+        - configMapRef:
+            name: app-config
+      env:
+        - name: MY_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: LOG_LEVEL

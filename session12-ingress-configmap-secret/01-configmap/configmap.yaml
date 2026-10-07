@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # simple key/value pairs -> environment variables
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  DEFAULT_CURRENCY: "INR"
+  # a whole file -> mounted as a file
+  app.properties: |
+    max.booking.days=30
+    feature.newUI=true

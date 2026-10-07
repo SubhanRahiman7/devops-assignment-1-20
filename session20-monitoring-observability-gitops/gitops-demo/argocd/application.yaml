@@ -1,0 +1,22 @@
+# Applied ONCE by hand (kubectl apply -f). It tells Argo CD where the desired state lives in Git.
+# Keep it OUTSIDE the synced path (app/) so Argo CD does not try to manage itself.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-demo
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SubhanRahiman7/devops-assignment-1-20.git
+    targetRevision: main
+    path: session20-monitoring-observability-gitops/gitops-demo/app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitops-demo
+  syncPolicy:
+    automated:
+      prune: true        # delete resources that were removed from Git
+      selfHeal: true     # revert manual changes made directly in the cluster
+    syncOptions:
+      - CreateNamespace=true
